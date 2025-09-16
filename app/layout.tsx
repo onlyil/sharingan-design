@@ -1,17 +1,12 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
-import { Toaster } from "@/components/ui/toaster"
-import "./globals.css"
+import type React from 'react'
+import type { Metadata } from 'next'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+import { Analytics } from '@vercel/analytics/next'
+import { Suspense } from 'react'
+import { Toaster } from '@/components/ui/sonner'
 
-export const metadata: Metadata = {
-  title: "万花筒写轮眼设计器 | Kaleidoscope Sharingan Designer",
-  description: "创造属于你的独特万花筒写轮眼图案，探索无限的艺术可能性",
-  generator: "v0.app",
-}
+import './globals.css'
 
 export default function RootLayout({
   children,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import presets from '@/constants/presets'
 
 import {
@@ -27,8 +27,7 @@ export function SharinganDesigner() {
   const [activeTab, setActiveTab] = useState('draw')
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false)
   const [designName, setDesignName] = useState('')
-  const { toast } = useToast()
-
+  
   const [bezierPaths, setBezierPaths] = useState<BezierPath[]>([])
   const [currentPathIndex, setCurrentPathIndex] = useState(0)
   const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>({
@@ -168,19 +167,16 @@ export function SharinganDesigner() {
     setBezierPaths(newPaths)
     setCurrentPathIndex(newPaths.length - 1)
 
-    toast({
-      title: '路径已添加',
-      description: `已添加第 ${newPaths.length} 个路径`,
+    toast.success(`已添加第 ${newPaths.length} 个路径`, {
+      description: '路径已添加',
     })
   }
 
   // 删除当前路径
   const deleteCurrentPath = () => {
     if (bezierPaths.length <= 1) {
-      toast({
-        title: '无法删除',
-        description: '至少需要保留一个路径',
-        variant: 'destructive',
+      toast.error('至少需要保留一个路径', {
+        description: '无法删除',
       })
       return
     }
@@ -194,9 +190,8 @@ export function SharinganDesigner() {
       setCurrentPathIndex(newPaths.length - 1)
     }
 
-    toast({
-      title: '路径已删除',
-      description: `已删除路径 ${currentPathIndex + 1}`,
+    toast.success(`已删除路径 ${currentPathIndex + 1}`, {
+      description: '路径已删除',
     })
   }
 
@@ -213,10 +208,8 @@ export function SharinganDesigner() {
   // 保存设计
   const confirmSaveDesign = () => {
     if (!designName.trim()) {
-      toast({
-        title: '输入错误',
-        description: '请输入设计名称',
-        variant: 'destructive',
+      toast.error('请输入设计名称', {
+        description: '输入错误',
       })
       return
     }
@@ -239,9 +232,8 @@ export function SharinganDesigner() {
     const updatedDesigns = loadDesignsFromLocalStorage(SAVED_DESIGNS_KEY)
     setSavedDesigns(updatedDesigns)
 
-    toast({
-      title: '保存成功',
-      description: `设计已保存为: ${designName}`,
+    toast.success(`设计已保存为: ${designName}`, {
+      description: '保存成功',
     })
   }
 
@@ -289,16 +281,13 @@ export function SharinganDesigner() {
 
     try {
       await copyConfigToClipboard(currentConfig)
-      toast({
-        title: '复制成功',
-        description: '配置已复制到剪贴板',
+      toast.success('配置已复制到剪贴板', {
+        description: '复制成功',
       })
     } catch (error) {
       console.error('复制失败:', error)
-      toast({
-        title: '复制失败',
-        description: '复制失败，请检查浏览器权限',
-        variant: 'destructive',
+      toast.error('复制失败，请检查浏览器权限', {
+        description: '复制失败',
       })
     }
   }
