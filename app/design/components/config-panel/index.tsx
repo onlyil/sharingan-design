@@ -7,15 +7,16 @@ import { AnimationTab } from './animation-tab'
 import { DataTab } from './data-tab'
 import {
   BezierPoint,
+  BezierPath,
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
-} from './sharingan-designer/types'
+} from '@/models/types'
 
 interface ConfigPanelProps {
   // 核心状态
   activeTab: string
-  bezierPaths: BezierPoint[][]
+  bezierPaths: BezierPath[]
   currentPathIndex: number
   symmetrySettings: SymmetrySettings
   animationSpeed: number[]
@@ -28,7 +29,7 @@ interface ConfigPanelProps {
 
   // 回调函数
   onTabChange: (tabId: string) => void
-  onBezierPathsChange: (paths: BezierPoint[][]) => void
+  onBezierPathsChange: (paths: BezierPath[]) => void
   onCurrentPathIndexChange: (index: number) => void
   onSymmetryChange: (settings: SymmetrySettings) => void
   onAnimationSpeedChange: (speed: number[]) => void
@@ -86,7 +87,16 @@ export function ConfigPanel({
 
   const updateCurrentPath = (newPath: BezierPoint[]) => {
     const newPaths = [...bezierPaths]
-    newPaths[currentPathIndex] = newPath
+    newPaths[currentPathIndex] = {
+      ...newPaths[currentPathIndex],
+      points: newPath,
+    }
+    onBezierPathsChange(newPaths)
+  }
+
+  const updatePathColor = (index: number, color: string) => {
+    const newPaths = [...bezierPaths]
+    newPaths[index] = { ...newPaths[index], color }
     onBezierPathsChange(newPaths)
   }
 
@@ -110,6 +120,7 @@ export function ConfigPanel({
             pupilSize={colorSettings.pupilSize}
             onPathChange={updateCurrentPath}
             onPathIndexChange={onCurrentPathIndexChange}
+            onPathColorChange={updatePathColor}
             onAddNewPath={onAddNewPath}
             onDeletePath={onDeletePath}
           />

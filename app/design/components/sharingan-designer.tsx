@@ -6,10 +6,11 @@ import presets from '@/constants/presets'
 
 import {
   BezierPoint,
+  BezierPath,
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
-} from './config-panel/types'
+} from '@/models/types'
 import { PreviewPanel } from './preview-panel'
 import { ConfigPanel } from './config-panel'
 import {
@@ -28,7 +29,7 @@ export function SharinganDesigner() {
   const [designName, setDesignName] = useState('')
   const { toast } = useToast()
 
-  const [bezierPaths, setBezierPaths] = useState<BezierPoint[][]>([])
+  const [bezierPaths, setBezierPaths] = useState<BezierPath[]>([])
   const [currentPathIndex, setCurrentPathIndex] = useState(0)
   const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>({
     axes: 3,
@@ -36,7 +37,6 @@ export function SharinganDesigner() {
   const [animationSpeed, setAnimationSpeed] = useState([0])
   const [colorSettings, setColorSettings] = useState<ColorSettings>({
     pupilColor: '#e70808',
-    pathFillColor: '#000000',
     pupilSize: 0.14,
   })
   const [currentPreset, setCurrentPreset] = useState<string>('')
@@ -57,10 +57,7 @@ export function SharinganDesigner() {
       try {
         const parsed = JSON.parse(savedData)
 
-        if (parsed.bezierPath && Array.isArray(parsed.bezierPath)) {
-          setBezierPaths([parsed.bezierPath])
-          shouldUseDefaults = false
-        } else if (parsed.bezierPaths && Array.isArray(parsed.bezierPaths)) {
+        if (parsed.bezierPaths && Array.isArray(parsed.bezierPaths)) {
           setBezierPaths(parsed.bezierPaths)
           shouldUseDefaults = false
         }
@@ -78,7 +75,6 @@ export function SharinganDesigner() {
         if (parsed.colorSettings) {
           setColorSettings({
             pupilColor: parsed.colorSettings.pupilColor || '#e70808',
-            pathFillColor: parsed.colorSettings.pathFillColor || '#000000',
             pupilSize: parsed.colorSettings.pupilSize || 0.15,
           })
           shouldUseDefaults = false
@@ -91,8 +87,10 @@ export function SharinganDesigner() {
     if (shouldUseDefaults && presets[0]) {
       setBezierPaths(presets[0].bezierPaths)
       setSymmetrySettings(presets[0].symmetrySettings)
-      setAnimationSpeed(presets[0].animationSpeed)
-      setColorSettings(presets[0].colorSettings)
+      setColorSettings({
+        pupilColor: presets[0].colorSettings.pupilColor,
+        pupilSize: presets[0].colorSettings.pupilSize,
+      })
       setCurrentPreset(presets[0].name)
     }
 
@@ -124,11 +122,18 @@ export function SharinganDesigner() {
   const loadPreset = (presetName: string) => {
     const preset = presets.find((p) => p.name === presetName)
     if (preset) {
-      setBezierPaths(preset.bezierPaths)
+      // 转换预设数据为新结构
+      const convertedPaths = preset.bezierPaths.map((path: BezierPath) => ({
+        points: path.points,
+        color: path.color || '#000000',
+      }))
+      setBezierPaths(convertedPaths)
       setCurrentPathIndex(0)
       setSymmetrySettings(preset.symmetrySettings)
-      setAnimationSpeed(preset.animationSpeed)
-      setColorSettings(preset.colorSettings)
+      setColorSettings({
+        pupilColor: preset.colorSettings.pupilColor,
+        pupilSize: preset.colorSettings.pupilSize,
+      })
       setCurrentPreset(presetName)
     }
   }
@@ -136,17 +141,29 @@ export function SharinganDesigner() {
   // 重置为默认
   const handleReset = () => {
     const defaultPreset = presets[0]
-    setBezierPaths(defaultPreset.bezierPaths)
+    const convertedPaths = defaultPreset.bezierPaths.map(
+      (path: BezierPath) => ({
+        points: path.points,
+        color: path.color || '#000000',
+      })
+    )
+    setBezierPaths(convertedPaths)
     setCurrentPathIndex(0)
     setSymmetrySettings(defaultPreset.symmetrySettings)
-    setAnimationSpeed(defaultPreset.animationSpeed)
-    setColorSettings(defaultPreset.colorSettings)
+    setColorSettings({
+      pupilColor: defaultPreset.colorSettings.pupilColor,
+      pupilSize: defaultPreset.colorSettings.pupilSize,
+    })
     setCurrentPreset(defaultPreset.name)
   }
 
   // 添加新路径
   const addNewPath = () => {
-    const newPath = createNewPath()
+    const newPathPoints = createNewPath()
+    const newPath: BezierPath = {
+      points: newPathPoints,
+      color: '#000000', // 新路径默认黑色
+    }
     const newPaths = [...bezierPaths, newPath]
     setBezierPaths(newPaths)
     setCurrentPathIndex(newPaths.length - 1)
@@ -186,7 +203,10 @@ export function SharinganDesigner() {
   // 更新当前路径
   const updateCurrentPath = (newPath: BezierPoint[]) => {
     const newPaths = [...bezierPaths]
-    newPaths[currentPathIndex] = newPath
+    newPaths[currentPathIndex] = {
+      ...newPaths[currentPathIndex],
+      points: newPath,
+    }
     setBezierPaths(newPaths)
   }
 

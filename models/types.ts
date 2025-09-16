@@ -7,19 +7,23 @@ export interface BezierPoint {
   cp2y?: number  // Second control point Y
 }
 
+export interface BezierPath {
+  points: BezierPoint[]
+  color: string
+}
+
 export interface SymmetrySettings {
   axes: number
 }
 
 export interface ColorSettings {
   pupilColor: string
-  pathFillColor: string
   pupilSize: number
 }
 
 export interface SavedDesign {
   name: string
-  bezierPaths: BezierPoint[][]
+  bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number[]
   colorSettings: ColorSettings

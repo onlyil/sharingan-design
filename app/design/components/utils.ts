@@ -1,9 +1,10 @@
 import {
   BezierPoint,
+  BezierPath,
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
-} from './config-panel/types'
+} from '@/models/types'
 
 // 生成默认设计名称
 export function generateDefaultDesignName(): string {
@@ -22,7 +23,7 @@ export function generateDefaultDesignName(): string {
 
 // 复制配置到剪贴板
 export async function copyConfigToClipboard(config: {
-  bezierPaths: BezierPoint[][]
+  bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number[]
   colorSettings: ColorSettings
@@ -61,7 +62,7 @@ export function createNewPath(): BezierPoint[] {
 export function saveDesignToLocalStorage(
   designName: string,
   config: {
-    bezierPaths: BezierPoint[][]
+    bezierPaths: BezierPath[]
     symmetrySettings: SymmetrySettings
     animationSpeed: number[]
     colorSettings: ColorSettings
@@ -109,17 +110,30 @@ export function deleteDesignFromLocalStorage(
 
 // 加载设计数据（支持向后兼容）
 export function loadDesignData(design: any): {
-  bezierPaths: BezierPoint[][]
+  bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number[]
   colorSettings: ColorSettings
 } {
-  let bezierPaths: BezierPoint[][] = []
+  let bezierPaths: BezierPath[] = []
 
   if (design.bezierPath && Array.isArray(design.bezierPath)) {
-    bezierPaths = [design.bezierPath]
+    // 老的单路径数据转换为新结构
+    const defaultColor = design.colorSettings?.pathFillColor || '#000000'
+    bezierPaths = [{ points: design.bezierPath, color: defaultColor }]
   } else if (design.bezierPaths && Array.isArray(design.bezierPaths)) {
-    bezierPaths = design.bezierPaths
+    // 检查是否是新结构
+    if (design.bezierPaths.length > 0 && design.bezierPaths[0].points) {
+      // 新结构，直接使用
+      bezierPaths = design.bezierPaths
+    } else {
+      // 老的多路径数据结构转换
+      const defaultColor = design.colorSettings?.pathFillColor || '#000000'
+      bezierPaths = design.bezierPaths.map((path: BezierPoint[]) => ({
+        points: path,
+        color: defaultColor,
+      }))
+    }
   }
 
   return {
@@ -128,7 +142,6 @@ export function loadDesignData(design: any): {
     animationSpeed: design.animationSpeed || [0],
     colorSettings: design.colorSettings || {
       pupilColor: '#e70808',
-      pathFillColor: '#000000',
       pupilSize: 0.14,
     },
   }

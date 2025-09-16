@@ -4,10 +4,11 @@ import {
   BezierPoint,
   SymmetrySettings,
   ColorSettings,
-} from './config-panel/types'
+  BezierPath,
+} from '@/models/types'
 
 interface PreviewPanelProps {
-  bezierPaths: BezierPoint[][]
+  bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number
   colorSettings: ColorSettings

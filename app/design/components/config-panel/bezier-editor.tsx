@@ -3,12 +3,12 @@
 import type React from "react"
 import { EDITOR_CONFIG } from "@/constants/coordinate-system"
 import { useRef, useEffect, useState } from "react"
-import type { BezierPoint } from "./sharingan-designer"
+import type { BezierPoint, BezierPath } from "./sharingan-designer"
 import { Button } from "@/components/ui/button"
 
 interface BezierEditorProps {
   pupilSize: number
-  allPaths: BezierPoint[][]
+  allPaths: BezierPath[]
   currentPathIndex: number
   onChange: (path: BezierPoint[]) => void
 }
@@ -19,7 +19,7 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
   const [isDragging, setIsDragging] = useState(false)
   const [dragType, setDragType] = useState<"point" | "cp1" | "cp2">("point")
 
-  const currentPath = allPaths[currentPathIndex] || []
+  const currentPath = allPaths[currentPathIndex]?.points || []
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -212,20 +212,20 @@ function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number) 
 
 function drawAllBezierPaths(
   ctx: CanvasRenderingContext2D,
-  allPaths: BezierPoint[][],
+  allPaths: BezierPath[],
   currentPathIndex: number,
   selectedPoint: number | null,
 ) {
   // 先绘制所有非当前路径（置灰）
   allPaths.forEach((path, pathIndex) => {
     if (pathIndex !== currentPathIndex) {
-      drawBezierPath(ctx, path, null, true) // 置灰显示
+      drawBezierPath(ctx, path.points, null, true) // 置灰显示
     }
   })
 
   // 最后绘制当前路径（正常显示）
   if (allPaths[currentPathIndex]) {
-    drawBezierPath(ctx, allPaths[currentPathIndex], selectedPoint, false)
+    drawBezierPath(ctx, allPaths[currentPathIndex].points, selectedPoint, false)
   }
 }
 

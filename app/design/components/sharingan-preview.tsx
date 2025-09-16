@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import type { BezierPoint, SymmetrySettings, ColorSettings } from "./sharingan-designer"
+import type { BezierPoint, BezierPath, SymmetrySettings, ColorSettings } from "./sharingan-designer"
 import { PREVIEW_CONFIG, COORDINATE_TRANSFORM } from "@/constants/coordinate-system"
 
 interface SharinganPreviewProps {
-  bezierPaths: BezierPoint[][] // 改为多路径支持
+  bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number
   colorSettings: ColorSettings
@@ -47,10 +47,10 @@ export function SharinganPreview({
           centerX,
           centerY,
           radius,
-          bezierPath,
+          bezierPath.points,
           symmetrySettings,
           rotationRef.current,
-          colorSettings.pathFillColor,
+          bezierPath.color,
         )
       })
 

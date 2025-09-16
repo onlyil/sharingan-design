@@ -8,15 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { BezierEditor } from './bezier-editor'
-import { BezierPoint } from './types'
+import { BezierPoint, BezierPath } from '@/models/types'
 
 interface DrawingTabProps {
-  bezierPaths: BezierPoint[][]
+  bezierPaths: BezierPath[]
   currentPathIndex: number
   pupilSize: number
   onPathChange: (newPath: BezierPoint[]) => void
   onPathIndexChange: (index: number) => void
+  onPathColorChange: (index: number, color: string) => void
   onAddNewPath: () => void
   onDeletePath: () => void
 }
@@ -27,15 +29,24 @@ export function DrawingTab({
   pupilSize,
   onPathChange,
   onPathIndexChange,
+  onPathColorChange,
   onAddNewPath,
   onDeletePath,
 }: DrawingTabProps) {
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3">
           <Label className="text-sm font-medium">贝塞尔路径编辑器</Label>
-          <div className="flex items-center gap-2">
+        </div>
+        <BezierEditor
+          pupilSize={pupilSize}
+          allPaths={bezierPaths}
+          currentPathIndex={currentPathIndex}
+          onChange={onPathChange}
+        />
+        <div className="mt-3 space-y-3">
+          <div className="flex items-center justify-between gap-2">
             <Select
               value={currentPathIndex.toString()}
               onValueChange={(value) =>
@@ -61,19 +72,51 @@ export function DrawingTab({
               删除
             </Button>
           </div>
-        </div>
-        <BezierEditor
-          pupilSize={pupilSize}
-          allPaths={bezierPaths}
-          currentPathIndex={currentPathIndex}
-          onChange={onPathChange}
-        />
-        <div className="mt-3">
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              路径填充颜色
+            </Label>
+            <RadioGroup
+              value={bezierPaths[currentPathIndex]?.color || '#000000'}
+              onValueChange={(value) =>
+                onPathColorChange(currentPathIndex, value)
+              }
+              className="flex flex-col gap-2">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="#000000" id="path-black" />
+                <label
+                  htmlFor="path-black"
+                  className="flex items-center gap-2 cursor-pointer">
+                  <div className="w-4 h-4 rounded-full bg-black border border-border"></div>
+                  <span className="text-sm">黑色</span>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    #000000
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="#B20000" id="path-red" />
+                <label
+                  htmlFor="path-red"
+                  className="flex items-center gap-2 cursor-pointer">
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: '#B20000' }}></div>
+                  <span className="text-sm">红色</span>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    #B20000
+                  </span>
+                </label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <Button
             size="sm"
             variant="outline"
             onClick={onAddNewPath}
-            className="w-full bg-transparent">
+            className="mt-3 w-full bg-transparent">
             添加路径
           </Button>
         </div>
