@@ -3,7 +3,7 @@ import {
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
-} from '../app/design/components/config-panel/types'
+} from './config-panel/types'
 
 // 生成默认设计名称
 export function generateDefaultDesignName(): string {

@@ -20,7 +20,7 @@ import {
   loadDesignsFromLocalStorage,
   deleteDesignFromLocalStorage,
   loadDesignData,
-} from '../../../components/utils'
+} from './utils'
 
 export function SharinganDesigner() {
   const [activeTab, setActiveTab] = useState('draw')
