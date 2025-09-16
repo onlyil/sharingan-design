@@ -2,16 +2,17 @@
 
 import { useEffect, useRef } from "react"
 import type { BezierPoint, SymmetrySettings, ColorSettings } from "./sharingan-designer"
+import { PREVIEW_CONFIG, COORDINATE_TRANSFORM } from "@/constants/coordinate-system"
 
 interface SharinganPreviewProps {
-  bezierPath: BezierPoint[]
+  bezierPaths: BezierPoint[][] // 改为多路径支持
   symmetrySettings: SymmetrySettings
   animationSpeed: number
   colorSettings: ColorSettings
 }
 
 export function SharinganPreview({
-  bezierPath,
+  bezierPaths,
   symmetrySettings,
   animationSpeed,
   colorSettings,
@@ -27,30 +28,31 @@ export function SharinganPreview({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    const size = 400
+    const size = PREVIEW_CONFIG.SIZE
     canvas.width = size
     canvas.height = size
 
     const centerX = size / 2
     const centerY = size / 2
-    const radius = size * 0.4
+    const radius = size * PREVIEW_CONFIG.RADIUS_RATIO
 
     const animate = () => {
       ctx.clearRect(0, 0, size, size)
 
       drawSharinganBackground(ctx, centerX, centerY, radius, colorSettings.pupilColor, false)
 
-      // 绘制对称路径
-      drawSymmetricPaths(
-        ctx,
-        centerX,
-        centerY,
-        radius,
-        bezierPath,
-        symmetrySettings,
-        rotationRef.current,
-        colorSettings.pathFillColor,
-      )
+      bezierPaths.forEach((bezierPath) => {
+        drawSymmetricPaths(
+          ctx,
+          centerX,
+          centerY,
+          radius,
+          bezierPath,
+          symmetrySettings,
+          rotationRef.current,
+          colorSettings.pathFillColor,
+        )
+      })
 
       drawPupil(ctx, centerX, centerY, radius, colorSettings.pupilColor, colorSettings.pupilSize)
 
@@ -67,7 +69,7 @@ export function SharinganPreview({
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [bezierPath, symmetrySettings, animationSpeed, colorSettings])
+  }, [bezierPaths, symmetrySettings, animationSpeed, colorSettings])
 
   return (
     <div className="relative">
@@ -89,15 +91,14 @@ function drawSharinganBackground(
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
   ctx.fillStyle = "#dc2626"
   ctx.fill()
-
   ctx.strokeStyle = "#000000"
-  ctx.lineWidth = 3
+  ctx.lineWidth = 6
   ctx.stroke()
 
   ctx.beginPath()
   ctx.arc(centerX, centerY, radius * 0.5, 0, Math.PI * 2)
-  ctx.strokeStyle = "#000000"
-  ctx.lineWidth = 2
+  ctx.strokeStyle = "#890001"
+  ctx.lineWidth = 3
   ctx.stroke()
 }
 
@@ -116,7 +117,6 @@ function drawPupil(
   ctx.fill()
   ctx.strokeStyle = "#000000"
   ctx.lineWidth = 1
-  ctx.stroke()
 }
 
 function drawSymmetricPaths(
@@ -135,13 +135,9 @@ function drawSymmetricPaths(
   ctx.translate(centerX, centerY)
   ctx.rotate(rotation)
 
-  ctx.strokeStyle = "#000000"
   ctx.fillStyle = pathFillColor
-  ctx.lineWidth = 2
-  ctx.shadowColor = "#000000"
-  ctx.shadowBlur = 3
 
-  const scale = radius / 200 // 缩放因子
+  const scale = COORDINATE_TRANSFORM.getScale(radius)
 
   for (let i = 0; i < symmetrySettings.axes; i++) {
     ctx.save()
@@ -151,29 +147,27 @@ function drawSymmetricPaths(
     // 绘制贝塞尔路径
     ctx.beginPath()
     const firstPoint = bezierPath[0]
-    ctx.moveTo((firstPoint.x - 100) * scale, (firstPoint.y - 100) * scale)
+    const [firstX, firstY] = COORDINATE_TRANSFORM.editorToPreview(firstPoint.x, firstPoint.y, scale)
+    ctx.moveTo(firstX, firstY)
 
     for (let j = 1; j < bezierPath.length; j++) {
       const point = bezierPath[j]
       const prevPoint = bezierPath[j - 1]
 
       if (prevPoint.cp2x !== undefined && point.cp1x !== undefined) {
-        ctx.bezierCurveTo(
-          (prevPoint.cp2x - 100) * scale,
-          (prevPoint.cp2y! - 100) * scale,
-          (point.cp1x - 100) * scale,
-          (point.cp1y! - 100) * scale,
-          (point.x - 100) * scale,
-          (point.y - 100) * scale,
-        )
+        const [cp2X, cp2Y] = COORDINATE_TRANSFORM.editorToPreview(prevPoint.cp2x, prevPoint.cp2y!, scale)
+        const [cp1X, cp1Y] = COORDINATE_TRANSFORM.editorToPreview(point.cp1x, point.cp1y!, scale)
+        const [pointX, pointY] = COORDINATE_TRANSFORM.editorToPreview(point.x, point.y, scale)
+
+        ctx.bezierCurveTo(cp2X, cp2Y, cp1X, cp1Y, pointX, pointY)
       } else {
-        ctx.lineTo((point.x - 100) * scale, (point.y - 100) * scale)
+        const [pointX, pointY] = COORDINATE_TRANSFORM.editorToPreview(point.x, point.y, scale)
+        ctx.lineTo(pointX, pointY)
       }
     }
 
     ctx.closePath()
     ctx.fill()
-    ctx.stroke()
     ctx.restore()
   }
 

@@ -6,7 +6,11 @@ export default function HomePage() {
     <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* 背景图片 */}
       <div className="absolute inset-0 z-0">
-        <img src="/uchiha-itachi-silhouette-with-sharingan-eyes-glowi.jpg" alt="Uchiha Itachi" className="w-full h-full object-cover opacity-60" />
+        <img
+          src="/uchiha-itachi-silhouette-with-sharingan-eyes-glowi.jpg"
+          alt="Uchiha Itachi"
+          className="w-full h-full object-cover opacity-60"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
       </div>
 
@@ -15,7 +19,7 @@ export default function HomePage() {
         {/* 标题区域 */}
         <div className="text-center mb-12 max-w-4xl">
           <h1 className="text-4xl md:text-8xl font-bold mb-6 text-balance">
-            <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent [&]:text-red-400">
               Mangekyō Sharingan Design
             </span>
           </h1>

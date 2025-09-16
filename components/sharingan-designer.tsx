@@ -8,9 +8,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { BezierEditor } from "@/components/bezier-editor"
 import { SharinganPreview } from "@/components/sharingan-preview"
 import { Settings, Palette, Zap, Play, Archive } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import presets from "@/contants/presets"
 
 export interface BezierPoint {
   x: number
@@ -33,39 +36,12 @@ export interface ColorSettings {
 
 export function SharinganDesigner() {
   const [activeTab, setActiveTab] = useState("basic")
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false)
+  const [designName, setDesignName] = useState("")
+  const { toast } = useToast()
 
-  const presets = [
-    {
-      name: "宇智波鼬",
-      bezierPath: [
-        { x: 50, y: 80, cp1x: 20, cp1y: 60, cp2x: 82, cp2y: 50 },
-        { x: 271, y: 90, cp1x: 140, cp1y: 13, cp2x: 187, cp2y: 55 },
-        {
-          x: 121,
-          y: 103,
-          cp1x: 123.78794181160859,
-          cp1y: 83.0438115329938,
-          cp2x: 175.5256886798903,
-          cp2y: 136.67516519541942,
-        },
-      ],
-      symmetrySettings: { axes: 3 },
-      animationSpeed: [0.2],
-      colorSettings: { pupilColor: "#e70808", pathFillColor: "#000000", pupilSize: 0.15 },
-    },
-    {
-      name: "基础模式",
-      bezierPath: [
-        { x: 50, y: 80, cp1x: 20, cp1y: 60, cp2x: 80, cp2y: 60 },
-        { x: 150, y: 50, cp1x: 120, cp1y: 30, cp2x: 180, cp2y: 30 },
-      ],
-      symmetrySettings: { axes: 3 },
-      animationSpeed: [0.2],
-      colorSettings: { pupilColor: "#000000", pathFillColor: "#000000", pupilSize: 0.15 },
-    },
-  ]
-
-  const [bezierPath, setBezierPath] = useState<BezierPoint[]>(presets[0].bezierPath)
+  const [bezierPaths, setBezierPaths] = useState<BezierPoint[][]>([presets[0].bezierPaths])
+  const [currentPathIndex, setCurrentPathIndex] = useState(0)
 
   const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>(presets[0].symmetrySettings)
 
@@ -84,7 +60,15 @@ export function SharinganDesigner() {
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData)
-        if (parsed.bezierPath) setBezierPath(parsed.bezierPath)
+
+        if (parsed.bezierPath && Array.isArray(parsed.bezierPath)) {
+          // 旧格式：单个路径
+          setBezierPaths([parsed.bezierPath])
+        } else if (parsed.bezierPaths && Array.isArray(parsed.bezierPaths)) {
+          // 新格式：多个路径
+          setBezierPaths(parsed.bezierPaths)
+        }
+
         if (parsed.symmetrySettings) setSymmetrySettings(parsed.symmetrySettings)
         if (parsed.animationSpeed) setAnimationSpeed(parsed.animationSpeed)
         // Ensure colorSettings contains pupilSize's default value
@@ -106,19 +90,20 @@ export function SharinganDesigner() {
 
   useEffect(() => {
     const dataToSave = {
-      bezierPath,
+      bezierPaths, // 保存新的多路径格式
       symmetrySettings,
       animationSpeed,
       colorSettings,
       timestamp: Date.now(),
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
-  }, [bezierPath, symmetrySettings, animationSpeed, colorSettings])
+  }, [bezierPaths, symmetrySettings, animationSpeed, colorSettings])
 
   const loadPreset = (presetName: string) => {
     const preset = presets.find((p) => p.name === presetName)
     if (preset) {
-      setBezierPath(preset.bezierPath)
+      setBezierPaths(preset.bezierPaths)
+      setCurrentPathIndex(0)
       setSymmetrySettings(preset.symmetrySettings)
       setAnimationSpeed(preset.animationSpeed)
       setColorSettings(preset.colorSettings)
@@ -127,17 +112,62 @@ export function SharinganDesigner() {
 
   const handleReset = () => {
     const defaultPreset = presets[0]
-    setBezierPath(defaultPreset.bezierPath)
+    setBezierPaths(defaultPreset.bezierPaths)
+    setCurrentPathIndex(0)
     setSymmetrySettings(defaultPreset.symmetrySettings)
     setAnimationSpeed(defaultPreset.animationSpeed)
     setColorSettings(defaultPreset.colorSettings)
   }
 
-  const handleSaveDesign = () => {
-    const designName = `设计_${new Date().toLocaleString()}`
+  const addNewPath = () => {
+    const newPath: BezierPoint[] = [
+      {
+        x: 160 + Math.random() * 40 - 20,
+        y: 120 + Math.random() * 40 - 20,
+        cp1x: 140 + Math.random() * 40 - 20,
+        cp1y: 100 + Math.random() * 40 - 20,
+        cp2x: 180 + Math.random() * 40 - 20,
+        cp2y: 140 + Math.random() * 40 - 20,
+      },
+      {
+        x: 200 + Math.random() * 40 - 20,
+        y: 160 + Math.random() * 40 - 20,
+        cp1x: 180 + Math.random() * 40 - 20,
+        cp1y: 140 + Math.random() * 40 - 20,
+        cp2x: 220 + Math.random() * 40 - 20,
+        cp2y: 180 + Math.random() * 40 - 20,
+      },
+    ]
+
+    const newPaths = [...bezierPaths, newPath]
+    setBezierPaths(newPaths)
+    setCurrentPathIndex(newPaths.length - 1) // 切换到新添加的路径
+
+    toast({
+      title: "路径已添加",
+      description: `已添加第 ${newPaths.length} 个路径`,
+    })
+  }
+
+  const updateCurrentPath = (newPath: BezierPoint[]) => {
+    const newPaths = [...bezierPaths]
+    newPaths[currentPathIndex] = newPath
+    setBezierPaths(newPaths)
+  }
+
+  const confirmSaveDesign = () => {
+    if (!designName.trim()) {
+      toast({
+        title: "输入错误",
+        description: "请输入设计名称",
+        variant: "destructive",
+      })
+      return
+    }
+
     const currentDesign = {
-      name: designName,
-      bezierPath,
+      name: designName.trim(),
+      bezierPaths, // 保存多路径格式
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -148,7 +178,30 @@ export function SharinganDesigner() {
     savedDesigns.push(currentDesign)
     window.localStorage.setItem(SAVED_DESIGNS_KEY, JSON.stringify(savedDesigns))
 
-    alert(`设计已保存为: ${designName}`)
+    setIsSaveDialogOpen(false)
+    toast({
+      title: "保存成功",
+      description: `设计已保存为: ${designName}`,
+    })
+  }
+
+  const generateDefaultDesignName = () => {
+    const now = new Date()
+    const timeString = now
+      .toLocaleString("zh-CN", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+      .replace(/[/\s:]/g, "")
+    return `设计_${timeString}`
+  }
+
+  const handleOpenSaveDialog = () => {
+    setDesignName(generateDefaultDesignName())
+    setIsSaveDialogOpen(true)
   }
 
   const loadSavedDesigns = () => {
@@ -157,7 +210,14 @@ export function SharinganDesigner() {
   }
 
   const loadDesignFromHistory = (design: any) => {
-    setBezierPath(design.bezierPath)
+    if (design.bezierPath && Array.isArray(design.bezierPath)) {
+      // 旧格式：单个路径
+      setBezierPaths([design.bezierPath])
+    } else if (design.bezierPaths && Array.isArray(design.bezierPaths)) {
+      // 新格式：多个路径
+      setBezierPaths(design.bezierPaths)
+    }
+    setCurrentPathIndex(0)
     setSymmetrySettings(design.symmetrySettings)
     setAnimationSpeed(design.animationSpeed)
     setColorSettings(design.colorSettings)
@@ -168,6 +228,31 @@ export function SharinganDesigner() {
     const updatedDesigns = savedDesigns.filter((_, i) => i !== index)
     setSavedDesigns(updatedDesigns)
     window.localStorage.setItem(SAVED_DESIGNS_KEY, JSON.stringify(updatedDesigns))
+  }
+
+  const copyCurrentConfig = async () => {
+    const currentConfig = {
+      bezierPaths, // 复制多路径格式
+      symmetrySettings,
+      animationSpeed,
+      colorSettings,
+      timestamp: Date.now(),
+    }
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(currentConfig, null, 2))
+      toast({
+        title: "复制成功",
+        description: "配置已复制到剪贴板",
+      })
+    } catch (error) {
+      console.error("复制失败:", error)
+      toast({
+        title: "复制失败",
+        description: "复制失败，请检查浏览器权限",
+        variant: "destructive",
+      })
+    }
   }
 
   const tabs = [
@@ -183,24 +268,23 @@ export function SharinganDesigner() {
       case "basic":
         return (
           <div className="space-y-4">
-            <Card className="p-4 space-y-4">
-              <Label className="text-sm font-medium">预设方案</Label>
-              <Select onValueChange={loadPreset}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择预设方案" />
-                </SelectTrigger>
-                <SelectContent>
-                  {presets.map((preset) => (
-                    <SelectItem key={preset.name} value={preset.name}>
-                      {preset.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Card>
-
-            <Card className="p-4 space-y-4">
-              <Label className="text-sm font-medium">对称设置</Label>
+            <Card className="p-4">
+              <Label className="text-sm font-medium">基础设置</Label>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">预设方案</Label>
+                <Select onValueChange={loadPreset} defaultValue={presets[0]?.name}>
+                  <SelectTrigger className="w-[80px]">
+                    <SelectValue placeholder="选择预设方案" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {presets.map((preset) => (
+                      <SelectItem key={preset.name} value={preset.name}>
+                        {preset.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">轴数: {symmetrySettings.axes}</Label>
@@ -208,7 +292,7 @@ export function SharinganDesigner() {
                   value={[symmetrySettings.axes]}
                   onValueChange={([value]) => setSymmetrySettings((prev) => ({ ...prev, axes: value }))}
                   min={2}
-                  max={12}
+                  max={6}
                   step={1}
                   className="w-full"
                 />
@@ -235,8 +319,37 @@ export function SharinganDesigner() {
         return (
           <div className="space-y-4">
             <Card className="p-4">
-              <Label className="text-sm font-medium mb-3 block">贝塞尔路径编辑器</Label>
-              <BezierEditor path={bezierPath} onChange={setBezierPath} />
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-sm font-medium">贝塞尔路径编辑器</Label>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={currentPathIndex.toString()}
+                    onValueChange={(value) => setCurrentPathIndex(Number.parseInt(value))}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bezierPaths.map((_, index) => (
+                        <SelectItem key={index} value={index.toString()}>
+                          路径 {index + 1}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <BezierEditor
+                pupilSize={colorSettings.pupilSize}
+                allPaths={bezierPaths}
+                currentPathIndex={currentPathIndex}
+                onChange={updateCurrentPath}
+              />
+              <div className="mt-3">
+                <Button size="sm" variant="outline" onClick={addNewPath} className="w-full bg-transparent">
+                  添加路径
+                </Button>
+              </div>
             </Card>
           </div>
         )
@@ -247,30 +360,56 @@ export function SharinganDesigner() {
             <Card className="p-4 space-y-4">
               <Label className="text-sm font-medium">颜色设置</Label>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label className="text-xs text-muted-foreground">瞳孔颜色</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={colorSettings.pupilColor}
-                    onChange={(e) => setColorSettings((prev) => ({ ...prev, pupilColor: e.target.value }))}
-                    className="w-8 h-8 rounded border border-border cursor-pointer"
-                  />
-                  <span className="text-xs text-muted-foreground font-mono">{colorSettings.pupilColor}</span>
-                </div>
+                <RadioGroup
+                  value={colorSettings.pupilColor}
+                  onValueChange={(value) => setColorSettings((prev) => ({ ...prev, pupilColor: value }))}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="#000000" id="pupil-black" />
+                    <label htmlFor="pupil-black" className="flex items-center gap-2 cursor-pointer">
+                      <div className="w-4 h-4 rounded-full bg-black border border-border"></div>
+                      <span className="text-sm">黑色</span>
+                      <span className="text-xs text-muted-foreground font-mono">#000000</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="#B20000" id="pupil-red" />
+                    <label htmlFor="pupil-red" className="flex items-center gap-2 cursor-pointer">
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: "#B20000" }}></div>
+                      <span className="text-sm">红色</span>
+                      <span className="text-xs text-muted-foreground font-mono">#B20000</span>
+                    </label>
+                  </div>
+                </RadioGroup>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label className="text-xs text-muted-foreground">路径填充颜色</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={colorSettings.pathFillColor}
-                    onChange={(e) => setColorSettings((prev) => ({ ...prev, pathFillColor: e.target.value }))}
-                    className="w-8 h-8 rounded border border-border cursor-pointer"
-                  />
-                  <span className="text-xs text-muted-foreground font-mono">{colorSettings.pathFillColor}</span>
-                </div>
+                <RadioGroup
+                  value={colorSettings.pathFillColor}
+                  onValueChange={(value) => setColorSettings((prev) => ({ ...prev, pathFillColor: value }))}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="#000000" id="path-black" />
+                    <label htmlFor="path-black" className="flex items-center gap-2 cursor-pointer">
+                      <div className="w-4 h-4 rounded-full bg-black border border-border"></div>
+                      <span className="text-sm">黑色</span>
+                      <span className="text-xs text-muted-foreground font-mono">#000000</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="#B20000" id="path-red" />
+                    <label htmlFor="path-red" className="flex items-center gap-2 cursor-pointer">
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: "#B20000" }}></div>
+                      <span className="text-sm">红色</span>
+                      <span className="text-xs text-muted-foreground font-mono">#B20000</span>
+                    </label>
+                  </div>
+                </RadioGroup>
               </div>
             </Card>
           </div>
@@ -303,9 +442,39 @@ export function SharinganDesigner() {
             <Button className="w-full" onClick={handleReset}>
               重置为默认
             </Button>
-            <Button variant="outline" className="w-full bg-transparent" onClick={handleSaveDesign}>
+            <Button variant="outline" className="w-full bg-transparent" onClick={handleOpenSaveDialog}>
               保存当前设计
             </Button>
+
+            <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>保存设计</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="design-name" className="text-sm font-medium">
+                      设计名称
+                    </Label>
+                    <input
+                      id="design-name"
+                      type="text"
+                      value={designName}
+                      onChange={(e) => setDesignName(e.target.value)}
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="请输入设计名称"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setIsSaveDialogOpen(false)}>
+                      取消
+                    </Button>
+                    <Button onClick={confirmSaveDesign}>保存</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="w-full bg-transparent" onClick={loadSavedDesigns}>
@@ -360,8 +529,8 @@ export function SharinganDesigner() {
                 </ScrollArea>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" className="w-full bg-transparent">
-              导出设计
+            <Button variant="outline" className="w-full bg-transparent" onClick={copyCurrentConfig}>
+              复制当前配置
             </Button>
           </div>
         )
@@ -376,7 +545,7 @@ export function SharinganDesigner() {
       <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
         <div className="relative">
           <SharinganPreview
-            bezierPath={bezierPath}
+            bezierPaths={bezierPaths} // 传递多路径数据
             symmetrySettings={symmetrySettings}
             animationSpeed={animationSpeed[0]}
             colorSettings={colorSettings}
@@ -411,9 +580,7 @@ export function SharinganDesigner() {
         </div>
 
         <div className="w-96 overflow-y-auto">
-          <div className="p-6">
-            {renderTabContent()}
-          </div>
+          <div className="p-6">{renderTabContent()}</div>
         </div>
       </div>
     </div>

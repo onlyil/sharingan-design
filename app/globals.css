@@ -58,8 +58,9 @@
   --accent-foreground: #0a0a0a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #2a2a2a;
-  --input: #1a1a1a;
+  /* 增强深色主题下的边框对比度 */
+  --border: #404040;
+  --input: #404040;
   --ring: #ef4444;
   --chart-1: #ef4444;
   --chart-2: #fbbf24;
@@ -72,7 +73,8 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #fbbf24;
   --sidebar-accent-foreground: #0a0a0a;
-  --sidebar-border: #2a2a2a;
+  /* 同步调整sidebar边框颜色 */
+  --sidebar-border: #404040;
   --sidebar-ring: #ef4444;
 }
 
@@ -95,14 +97,10 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  /* 添加缺失的边框和输入框颜色定义 */
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
