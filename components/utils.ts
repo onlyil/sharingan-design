@@ -1,4 +1,9 @@
-import { BezierPoint, SymmetrySettings, ColorSettings, SavedDesign } from './types'
+import {
+  BezierPoint,
+  SymmetrySettings,
+  ColorSettings,
+  SavedDesign,
+} from '../app/design/components/config-panel/types'
 
 // 生成默认设计名称
 export function generateDefaultDesignName(): string {
@@ -26,10 +31,8 @@ export async function copyConfigToClipboard(config: {
     ...config,
     timestamp: Date.now(),
   }
-  
-  await navigator.clipboard.writeText(
-    JSON.stringify(configData, null, 2)
-  )
+
+  await navigator.clipboard.writeText(JSON.stringify(configData, null, 2))
 }
 
 // 创建新路径
@@ -83,10 +86,10 @@ export function loadDesignsFromLocalStorage(
   storageKey: string = 'sharingan-saved-designs'
 ): SavedDesign[] {
   try {
-    const designs = JSON.parse(
-      window.localStorage.getItem(storageKey) || '[]'
+    const designs = JSON.parse(window.localStorage.getItem(storageKey) || '[]')
+    return designs.sort(
+      (a: SavedDesign, b: SavedDesign) => b.timestamp - a.timestamp
     )
-    return designs.sort((a: SavedDesign, b: SavedDesign) => b.timestamp - a.timestamp)
   } catch (error) {
     console.error('Failed to load saved designs:', error)
     return []
@@ -112,7 +115,7 @@ export function loadDesignData(design: any): {
   colorSettings: ColorSettings
 } {
   let bezierPaths: BezierPoint[][] = []
-  
+
   if (design.bezierPath && Array.isArray(design.bezierPath)) {
     bezierPaths = [design.bezierPath]
   } else if (design.bezierPaths && Array.isArray(design.bezierPaths)) {

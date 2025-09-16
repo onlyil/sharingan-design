@@ -1,13 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { BezierEditor } from '@/components/bezier-editor'
-import { SharinganPreview } from '@/components/sharingan-preview'
-import { Settings, Palette, Zap, Play, Archive } from 'lucide-react'
 import presets from '@/constants/presets'
 
 import {
@@ -15,13 +9,9 @@ import {
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
-} from './types'
-import { BasicSettingsTab } from './basic-settings-tab'
-import { DrawingTab } from './drawing-tab'
-import { ColorSettingsTab } from './color-settings-tab'
-import { AnimationTab } from './animation-tab'
-import { DataTab } from './data-tab'
-import { PresetSelector } from './preset-selector'
+} from './config-panel/types'
+import { PreviewPanel } from './preview-panel'
+import { ConfigPanel } from './config-panel'
 import {
   generateDefaultDesignName,
   copyConfigToClipboard,
@@ -30,7 +20,7 @@ import {
   loadDesignsFromLocalStorage,
   deleteDesignFromLocalStorage,
   loadDesignData,
-} from './utils'
+} from '../../../components/utils'
 
 export function SharinganDesigner() {
   const [activeTab, setActiveTab] = useState('draw')
@@ -292,130 +282,48 @@ export function SharinganDesigner() {
     }
   }
 
-  const tabs = [
-    { id: 'draw', label: '绘制', icon: Zap },
-    { id: 'basic', label: '基础', icon: Settings },
-    { id: 'color', label: '颜色', icon: Palette },
-    { id: 'animation', label: '动画', icon: Play },
-    { id: 'data', label: '数据', icon: Archive },
-  ]
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'basic':
-        return (
-          <BasicSettingsTab
-            symmetrySettings={symmetrySettings}
-            colorSettings={colorSettings}
-            onSymmetryChange={setSymmetrySettings}
-            onColorSettingsChange={setColorSettings}
-          />
-        )
-
-      case 'draw':
-        return (
-          <DrawingTab
-            bezierPaths={bezierPaths}
-            currentPathIndex={currentPathIndex}
-            pupilSize={colorSettings.pupilSize}
-            onPathChange={updateCurrentPath}
-            onPathIndexChange={setCurrentPathIndex}
-            onAddNewPath={addNewPath}
-            onDeletePath={deleteCurrentPath}
-          />
-        )
-
-      case 'color':
-        return (
-          <ColorSettingsTab
-            colorSettings={colorSettings}
-            onColorSettingsChange={setColorSettings}
-          />
-        )
-
-      case 'animation':
-        return (
-          <AnimationTab
-            animationSpeed={animationSpeed}
-            onAnimationSpeedChange={setAnimationSpeed}
-          />
-        )
-
-      case 'data':
-        return (
-          <DataTab
-            designName={designName}
-            isSaveDialogOpen={isSaveDialogOpen}
-            savedDesigns={savedDesigns}
-            isHistoryOpen={isHistoryOpen}
-            onOpenSaveDialog={handleOpenSaveDialog}
-            onCloseSaveDialog={() => setIsSaveDialogOpen(false)}
-            onSaveDesign={confirmSaveDesign}
-            onDesignNameChange={setDesignName}
-            onReset={handleReset}
-            onLoadDesign={loadDesignFromHistory}
-            onDeleteDesign={deleteDesign}
-            onCopyConfig={copyCurrentConfig}
-            onLoadSavedDesigns={loadSavedDesigns}
-          />
-        )
-
-      default:
-        return null
-    }
-  }
-
   return (
     <div className="flex h-screen bg-background">
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
-        <div className="flex flex-col items-center space-y-6">
-          <div className="relative">
-            <SharinganPreview
-              bezierPaths={bezierPaths}
-              symmetrySettings={symmetrySettings}
-              animationSpeed={animationSpeed[0]}
-              colorSettings={colorSettings}
-            />
-          </div>
+      <PreviewPanel
+        bezierPaths={bezierPaths}
+        symmetrySettings={symmetrySettings}
+        animationSpeed={animationSpeed[0]}
+        colorSettings={colorSettings}
+        currentPreset={currentPreset}
+        presets={presets}
+        onLoadPreset={loadPreset}
+      />
 
-          {/* 预设选择器移到预览区下方 */}
-          <PresetSelector
-            currentPreset={currentPreset}
-            presets={presets}
-            onLoadPreset={loadPreset}
-          />
-        </div>
-      </div>
-
-      <div className="flex bg-card border-l border-border">
-        <div className="w-16 bg-muted/30 border-r border-border flex flex-col">
-          <div className="p-2 border-b border-border">
-            <h2 className="text-xs font-bold text-center text-primary">设置</h2>
-          </div>
-          <div className="flex-1 py-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full p-3 flex flex-col items-center gap-1 transition-colors hover:bg-muted ${
-                    activeTab === tab.id
-                      ? 'bg-primary/10 text-foreground border-r-2 border-primary'
-                      : 'text-muted-foreground'
-                  }`}>
-                  <Icon size={16} />
-                  <span className="text-xs">{tab.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="w-96 overflow-y-auto">
-          <div className="p-6">{renderTabContent()}</div>
-        </div>
-      </div>
+      <ConfigPanel
+        activeTab={activeTab}
+        bezierPaths={bezierPaths}
+        currentPathIndex={currentPathIndex}
+        symmetrySettings={symmetrySettings}
+        animationSpeed={animationSpeed}
+        colorSettings={colorSettings}
+        currentPreset={currentPreset}
+        savedDesigns={savedDesigns}
+        isSaveDialogOpen={isSaveDialogOpen}
+        designName={designName}
+        isHistoryOpen={isHistoryOpen}
+        onTabChange={setActiveTab}
+        onBezierPathsChange={setBezierPaths}
+        onCurrentPathIndexChange={setCurrentPathIndex}
+        onSymmetryChange={setSymmetrySettings}
+        onAnimationSpeedChange={setAnimationSpeed}
+        onColorSettingsChange={setColorSettings}
+        onAddNewPath={addNewPath}
+        onDeletePath={deleteCurrentPath}
+        onOpenSaveDialog={handleOpenSaveDialog}
+        onCloseSaveDialog={() => setIsSaveDialogOpen(false)}
+        onSaveDesign={confirmSaveDesign}
+        onDesignNameChange={setDesignName}
+        onReset={handleReset}
+        onLoadDesign={loadDesignFromHistory}
+        onDeleteDesign={deleteDesign}
+        onCopyConfig={copyCurrentConfig}
+        onLoadSavedDesigns={loadSavedDesigns}
+      />
     </div>
   )
 }

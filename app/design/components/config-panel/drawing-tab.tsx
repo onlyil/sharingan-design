@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { BezierEditor } from '@/components/bezier-editor'
+import { BezierEditor } from './bezier-editor'
 import { BezierPoint } from './types'
 
 interface DrawingTabProps {

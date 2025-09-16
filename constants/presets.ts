@@ -2,7 +2,7 @@ import type {
   BezierPoint,
   SymmetrySettings,
   ColorSettings,
-} from '@/components/sharingan-designer'
+} from '@/app/design/components/sharingan-designer'
 
 interface Preset {
   name: string

@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ColorSettings } from './types'
+import { ColorSettings } from './sharingan-designer/types'
 
 interface ColorSettingsTabProps {
   colorSettings: ColorSettings
@@ -18,9 +18,7 @@ export function ColorSettingsTab({
         <Label className="text-sm font-medium">颜色设置</Label>
 
         <div className="space-y-3">
-          <Label className="text-xs text-muted-foreground">
-            瞳孔颜色
-          </Label>
+          <Label className="text-xs text-muted-foreground">瞳孔颜色</Label>
           <RadioGroup
             value={colorSettings.pupilColor}
             onValueChange={(value) =>
@@ -57,9 +55,7 @@ export function ColorSettingsTab({
         </div>
 
         <div className="space-y-3">
-          <Label className="text-xs text-muted-foreground">
-            路径填充颜色
-          </Label>
+          <Label className="text-xs text-muted-foreground">路径填充颜色</Label>
           <RadioGroup
             value={colorSettings.pathFillColor}
             onValueChange={(value) =>

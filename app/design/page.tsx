@@ -1,4 +1,4 @@
-import { SharinganDesigner } from "@/components/sharingan-designer"
+import { SharinganDesigner } from './components/sharingan-designer'
 
 export default function DesignPage() {
   return (
