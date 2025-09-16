@@ -28,7 +28,15 @@ pnpm start
 ## Architecture Overview
 
 ### Core Components
-- **sharingan-designer.tsx**: Main design interface, manages state for bezier paths, symmetry settings, colors, and animation. Includes undo/redo functionality and debounced localStorage persistence
+- **sharingan-designer/**: Modular design interface with split components
+  - `index.tsx`: Main component orchestrating state and tab navigation (~300 lines)
+  - `basic-settings-tab.tsx`: Preset selection, symmetry axes, pupil size controls
+  - `drawing-tab.tsx`: Bezier path editor with path management
+  - `color-settings-tab.tsx`: Pupil and path color configuration
+  - `animation-tab.tsx`: Rotation speed controls
+  - `data-tab.tsx`: Save/load designs, reset, copy config functionality
+  - `types.ts`: Shared TypeScript interfaces
+  - `utils.ts`: Utility functions for data persistence and manipulation
 - **sharingan-preview.tsx**: Optimized canvas-based preview component with dirty checking, path caching, and separate animation loop for performance  
 - **bezier-editor.tsx**: Interactive canvas editor for creating/editing bezier curves with drag-and-drop control points
 
@@ -78,6 +86,54 @@ interface ColorSettings {
 - Symmetry transformation using mathematical rotation
 - Animation loop with configurable speed
 
+### Component Architecture
+The sharingan-designer component follows a modular architecture:
+- **Main Component** (`index.tsx`): Manages global state and tab navigation
+- **Tab Components**: Each tab is a separate component with specific responsibilities:
+  - Basic settings: Preset management and basic parameters
+  - Drawing: Bezier path editing and management
+  - Color: Color scheme configuration
+  - Animation: Rotation and animation controls
+  - Data: Save/load functionality and configuration export
+- **Utility Layer** (`utils.ts`): Handles data persistence, clipboard operations, and design management
+- **Type Definitions** (`types.ts`): Centralized TypeScript interfaces for type safety
+
+### Build Configuration
+- **ESLint/TypeScript**: Errors ignored during builds (see next.config.mjs)
+- **Image Optimization**: Disabled for faster builds
+- **Vercel Deployment**: Auto-sync from v0.app
+
+## Key Technical Details
+
+### Coordinate Transformation
+The coordinate system is critical for proper rendering. Editor uses fixed 300x300 canvas while preview scales dynamically:
+```typescript
+// Scale calculation
+const scale = previewRadius / EDITOR_CONFIG.REFERENCE_RADIUS
+
+// Coordinate conversion
+const [previewX, previewY] = [
+  (editorX - EDITOR_CONFIG.CENTER_X) * scale,
+  (editorY - EDITOR_CONFIG.CENTER_Y) * scale
+]
+```
+
+### State Persistence
+- LocalStorage with 500ms debounce delay
+- Supports both legacy format (single path) and current format (multiple paths)
+- Automatic migration from old data formats
+
+### Performance Optimizations
+- Dirty checking in preview component to avoid unnecessary re-renders
+- Path caching for animation frames
+- Separate animation loop using requestAnimationFrame
+- Canvas-based rendering for smooth graphics
+
+### Preset System
+Built-in character presets with predefined bezier paths:
+- **Itachi (鼬)**: 3-axis symmetry, red pupil
+- **Shisui (止水)**: 4-axis symmetry, darker red pupil
+
 ## Important Notes
 
 - This project was built with v0.app and auto-syncs to Vercel
@@ -88,3 +144,35 @@ interface ColorSettings {
 - Features undo/redo functionality with 50-step history limit
 - Includes debounced localStorage persistence (500ms delay)
 - Supports PNG image export from canvas element
+- **Component Refactoring**: The sharingan-designer component has been modularized into separate tab components for better maintainability while preserving all existing functionality
+
+## Common Development Tasks
+
+### Adding New Features
+1. Check existing components in `/components/` for patterns
+2. Use shadcn/ui components for consistency
+3. Follow the established coordinate system for canvas operations
+4. Maintain the separation between editor and preview logic
+5. For sharingan-designer components, follow the modular structure:
+   - Create new tab components in `/components/sharingan-designer/`
+   - Add types to `types.ts` if needed
+   - Use utility functions from `utils.ts`
+   - Update the main `index.tsx` to include new tabs
+
+### Working with Canvas
+- All canvas operations should use the coordinate transformation system
+- Editor canvas is 300x300, preview canvas is 400x400
+- Use the `editorToPreview()` function for coordinate conversion
+- Implement dirty checking for performance
+
+### State Management
+- Use React hooks for local state
+- Follow the existing pattern for localStorage persistence
+- Maintain backward compatibility with legacy data formats
+- Use debouncing for expensive operations
+
+### Styling
+- Use Tailwind CSS classes exclusively
+- Follow the shadcn/ui component patterns
+- Support both light and dark themes
+- Maintain responsive design principles
