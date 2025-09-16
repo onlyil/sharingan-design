@@ -89,7 +89,7 @@ function drawSharinganBackground(
   // 外圆 - 红色背景
   ctx.beginPath()
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-  ctx.fillStyle = "#dc2626"
+  ctx.fillStyle = "#B20000"
   ctx.fill()
   ctx.strokeStyle = "#000000"
   ctx.lineWidth = 6

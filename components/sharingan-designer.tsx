@@ -40,14 +40,16 @@ export function SharinganDesigner() {
   const [designName, setDesignName] = useState("")
   const { toast } = useToast()
 
-  const [bezierPaths, setBezierPaths] = useState<BezierPoint[][]>([presets[0].bezierPaths])
+  const [bezierPaths, setBezierPaths] = useState<BezierPoint[][]>([])
   const [currentPathIndex, setCurrentPathIndex] = useState(0)
-
-  const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>(presets[0].symmetrySettings)
-
-  const [animationSpeed, setAnimationSpeed] = useState(presets[0].animationSpeed)
-
-  const [colorSettings, setColorSettings] = useState<ColorSettings>(presets[0].colorSettings)
+  const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>({ axes: 3 })
+  const [animationSpeed, setAnimationSpeed] = useState([0])
+  const [colorSettings, setColorSettings] = useState<ColorSettings>({
+    pupilColor: "#e70808",
+    pathFillColor: "#000000",
+    pupilSize: 0.14,
+  })
+  const [currentPreset, setCurrentPreset] = useState<string>("")
 
   const [savedDesigns, setSavedDesigns] = useState<any[]>([])
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
@@ -57,31 +59,49 @@ export function SharinganDesigner() {
 
   useEffect(() => {
     const savedData = window.localStorage.getItem(STORAGE_KEY)
+    let shouldUseDefaults = true
+
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData)
 
         if (parsed.bezierPath && Array.isArray(parsed.bezierPath)) {
-          // 旧格式：单个路径
           setBezierPaths([parsed.bezierPath])
+          shouldUseDefaults = false
         } else if (parsed.bezierPaths && Array.isArray(parsed.bezierPaths)) {
-          // 新格式：多个路径
           setBezierPaths(parsed.bezierPaths)
+          shouldUseDefaults = false
         }
 
-        if (parsed.symmetrySettings) setSymmetrySettings(parsed.symmetrySettings)
-        if (parsed.animationSpeed) setAnimationSpeed(parsed.animationSpeed)
-        // Ensure colorSettings contains pupilSize's default value
+        if (parsed.symmetrySettings) {
+          setSymmetrySettings(parsed.symmetrySettings)
+          shouldUseDefaults = false
+        }
+
+        if (parsed.animationSpeed) {
+          setAnimationSpeed(parsed.animationSpeed)
+          shouldUseDefaults = false
+        }
+
         if (parsed.colorSettings) {
           setColorSettings({
             pupilColor: parsed.colorSettings.pupilColor || "#e70808",
             pathFillColor: parsed.colorSettings.pathFillColor || "#000000",
             pupilSize: parsed.colorSettings.pupilSize || 0.15,
           })
+          shouldUseDefaults = false
         }
       } catch (error) {
         console.error("Failed to load saved data:", error)
       }
+    }
+
+    if (shouldUseDefaults && presets[0]) {
+      setBezierPaths(presets[0].bezierPaths)
+      setSymmetrySettings(presets[0].symmetrySettings)
+      setAnimationSpeed(presets[0].animationSpeed)
+      setColorSettings(presets[0].colorSettings)
+      setCurrentPreset(presets[0].name)
     }
 
     const designs = JSON.parse(window.localStorage.getItem(SAVED_DESIGNS_KEY) || "[]")
@@ -90,7 +110,7 @@ export function SharinganDesigner() {
 
   useEffect(() => {
     const dataToSave = {
-      bezierPaths, // 保存新的多路径格式
+      bezierPaths,
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -107,6 +127,7 @@ export function SharinganDesigner() {
       setSymmetrySettings(preset.symmetrySettings)
       setAnimationSpeed(preset.animationSpeed)
       setColorSettings(preset.colorSettings)
+      setCurrentPreset(presetName)
     }
   }
 
@@ -117,6 +138,7 @@ export function SharinganDesigner() {
     setSymmetrySettings(defaultPreset.symmetrySettings)
     setAnimationSpeed(defaultPreset.animationSpeed)
     setColorSettings(defaultPreset.colorSettings)
+    setCurrentPreset(defaultPreset.name)
   }
 
   const addNewPath = () => {
@@ -141,11 +163,35 @@ export function SharinganDesigner() {
 
     const newPaths = [...bezierPaths, newPath]
     setBezierPaths(newPaths)
-    setCurrentPathIndex(newPaths.length - 1) // 切换到新添加的路径
+    setCurrentPathIndex(newPaths.length - 1)
 
     toast({
       title: "路径已添加",
       description: `已添加第 ${newPaths.length} 个路径`,
+    })
+  }
+
+  const deleteCurrentPath = () => {
+    if (bezierPaths.length <= 1) {
+      toast({
+        title: "无法删除",
+        description: "至少需要保留一个路径",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const newPaths = bezierPaths.filter((_, index) => index !== currentPathIndex)
+    setBezierPaths(newPaths)
+
+    // 调整当前路径索引
+    if (currentPathIndex >= newPaths.length) {
+      setCurrentPathIndex(newPaths.length - 1)
+    }
+
+    toast({
+      title: "路径已删除",
+      description: `已删除路径 ${currentPathIndex + 1}`,
     })
   }
 
@@ -167,7 +213,7 @@ export function SharinganDesigner() {
 
     const currentDesign = {
       name: designName.trim(),
-      bezierPaths, // 保存多路径格式
+      bezierPaths,
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -211,10 +257,8 @@ export function SharinganDesigner() {
 
   const loadDesignFromHistory = (design: any) => {
     if (design.bezierPath && Array.isArray(design.bezierPath)) {
-      // 旧格式：单个路径
       setBezierPaths([design.bezierPath])
     } else if (design.bezierPaths && Array.isArray(design.bezierPaths)) {
-      // 新格式：多个路径
       setBezierPaths(design.bezierPaths)
     }
     setCurrentPathIndex(0)
@@ -232,7 +276,7 @@ export function SharinganDesigner() {
 
   const copyCurrentConfig = async () => {
     const currentConfig = {
-      bezierPaths, // 复制多路径格式
+      bezierPaths,
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -272,8 +316,8 @@ export function SharinganDesigner() {
               <Label className="text-sm font-medium">基础设置</Label>
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">预设方案</Label>
-                <Select onValueChange={loadPreset} defaultValue={presets[0]?.name}>
-                  <SelectTrigger className="w-[80px]">
+                <Select onValueChange={loadPreset} value={currentPreset}>
+                  <SelectTrigger className="w-[125px]">
                     <SelectValue placeholder="选择预设方案" />
                   </SelectTrigger>
                   <SelectContent>
@@ -337,6 +381,15 @@ export function SharinganDesigner() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={deleteCurrentPath}
+                    disabled={bezierPaths.length <= 1}
+                    className="text-destructive hover:text-destructive bg-transparent"
+                  >
+                    删除
+                  </Button>
                 </div>
               </div>
               <BezierEditor
@@ -545,7 +598,7 @@ export function SharinganDesigner() {
       <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
         <div className="relative">
           <SharinganPreview
-            bezierPaths={bezierPaths} // 传递多路径数据
+            bezierPaths={bezierPaths}
             symmetrySettings={symmetrySettings}
             animationSpeed={animationSpeed[0]}
             colorSettings={colorSettings}
