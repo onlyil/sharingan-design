@@ -10,12 +10,18 @@ import { SharinganPreview } from '@/components/sharingan-preview'
 import { Settings, Palette, Zap, Play, Archive } from 'lucide-react'
 import presets from '@/constants/presets'
 
-import { BezierPoint, SymmetrySettings, ColorSettings, SavedDesign } from './types'
+import {
+  BezierPoint,
+  SymmetrySettings,
+  ColorSettings,
+  SavedDesign,
+} from './types'
 import { BasicSettingsTab } from './basic-settings-tab'
 import { DrawingTab } from './drawing-tab'
 import { ColorSettingsTab } from './color-settings-tab'
 import { AnimationTab } from './animation-tab'
 import { DataTab } from './data-tab'
+import { PresetSelector } from './preset-selector'
 import {
   generateDefaultDesignName,
   copyConfigToClipboard,
@@ -27,7 +33,7 @@ import {
 } from './utils'
 
 export function SharinganDesigner() {
-  const [activeTab, setActiveTab] = useState('basic')
+  const [activeTab, setActiveTab] = useState('draw')
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false)
   const [designName, setDesignName] = useState('')
   const { toast } = useToast()
@@ -116,7 +122,13 @@ export function SharinganDesigner() {
     }
     isDataInitialized &&
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
-  }, [bezierPaths, symmetrySettings, animationSpeed, colorSettings, isDataInitialized])
+  }, [
+    bezierPaths,
+    symmetrySettings,
+    animationSpeed,
+    colorSettings,
+    isDataInitialized,
+  ])
 
   // 加载预设
   const loadPreset = (presetName: string) => {
@@ -206,9 +218,13 @@ export function SharinganDesigner() {
       colorSettings,
     }
 
-    saveDesignToLocalStorage(designName.trim(), currentConfig, SAVED_DESIGNS_KEY)
+    saveDesignToLocalStorage(
+      designName.trim(),
+      currentConfig,
+      SAVED_DESIGNS_KEY
+    )
     setIsSaveDialogOpen(false)
-    
+
     // 重新加载保存的设计列表
     const updatedDesigns = loadDesignsFromLocalStorage(SAVED_DESIGNS_KEY)
     setSavedDesigns(updatedDesigns)
@@ -244,7 +260,10 @@ export function SharinganDesigner() {
 
   // 删除设计
   const deleteDesign = (index: number) => {
-    const updatedDesigns = deleteDesignFromLocalStorage(index, SAVED_DESIGNS_KEY)
+    const updatedDesigns = deleteDesignFromLocalStorage(
+      index,
+      SAVED_DESIGNS_KEY
+    )
     setSavedDesigns(updatedDesigns)
   }
 
@@ -274,8 +293,8 @@ export function SharinganDesigner() {
   }
 
   const tabs = [
-    { id: 'basic', label: '基础', icon: Settings },
     { id: 'draw', label: '绘制', icon: Zap },
+    { id: 'basic', label: '基础', icon: Settings },
     { id: 'color', label: '颜色', icon: Palette },
     { id: 'animation', label: '动画', icon: Play },
     { id: 'data', label: '数据', icon: Archive },
@@ -286,13 +305,10 @@ export function SharinganDesigner() {
       case 'basic':
         return (
           <BasicSettingsTab
-            currentPreset={currentPreset}
             symmetrySettings={symmetrySettings}
             colorSettings={colorSettings}
-            onLoadPreset={loadPreset}
             onSymmetryChange={setSymmetrySettings}
             onColorSettingsChange={setColorSettings}
-            presets={presets}
           />
         )
 
@@ -351,13 +367,22 @@ export function SharinganDesigner() {
 
   return (
     <div className="flex h-screen bg-background">
-      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
-        <div className="relative">
-          <SharinganPreview
-            bezierPaths={bezierPaths}
-            symmetrySettings={symmetrySettings}
-            animationSpeed={animationSpeed[0]}
-            colorSettings={colorSettings}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="relative">
+            <SharinganPreview
+              bezierPaths={bezierPaths}
+              symmetrySettings={symmetrySettings}
+              animationSpeed={animationSpeed[0]}
+              colorSettings={colorSettings}
+            />
+          </div>
+
+          {/* 预设选择器移到预览区下方 */}
+          <PresetSelector
+            currentPreset={currentPreset}
+            presets={presets}
+            onLoadPreset={loadPreset}
           />
         </div>
       </div>

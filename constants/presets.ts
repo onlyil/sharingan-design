@@ -6,6 +6,7 @@ import type {
 
 interface Preset {
   name: string
+  image: string
   bezierPaths: BezierPoint[][]
   symmetrySettings: SymmetrySettings
   animationSpeed: number[]
@@ -15,6 +16,7 @@ interface Preset {
 const presets: Preset[] = [
   {
     name: '鼬',
+    image: '/Itachi.png',
     bezierPaths: [
       [
         {
@@ -55,6 +57,7 @@ const presets: Preset[] = [
   },
   {
     name: '止水',
+    image: '/Shisui.png',
     bezierPaths: [
       [
         {

@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card } from '@/components/ui/card'
+import { Label } from '@radix-ui/react-label'
 
 interface DataTabProps {
   designName: string
@@ -59,9 +60,7 @@ export function DataTab({
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="design-name"
-                className="text-sm font-medium">
+              <Label htmlFor="design-name" className="text-sm font-medium">
                 设计名称
               </Label>
               <input
@@ -74,9 +73,7 @@ export function DataTab({
               />
             </div>
             <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={onCloseSaveDialog}>
+              <Button variant="outline" onClick={onCloseSaveDialog}>
                 取消
               </Button>
               <Button onClick={onSaveDesign}>保存</Button>
@@ -85,7 +82,9 @@ export function DataTab({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isHistoryOpen} onOpenChange={(open) => !open && onCloseSaveDialog}>
+      <Dialog
+        open={isHistoryOpen}
+        onOpenChange={(open) => !open && onCloseSaveDialog}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -109,9 +108,7 @@ export function DataTab({
                   <Card key={index} className="p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="text-sm font-medium">
-                          {design.name}
-                        </p>
+                        <p className="text-sm font-medium">{design.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(design.timestamp).toLocaleString()}
                         </p>
