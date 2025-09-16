@@ -27,13 +27,13 @@ export function SharinganDesigner() {
   const [activeTab, setActiveTab] = useState('draw')
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false)
   const [designName, setDesignName] = useState('')
-  
+
   const [bezierPaths, setBezierPaths] = useState<BezierPath[]>([])
   const [currentPathIndex, setCurrentPathIndex] = useState(0)
   const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>({
     axes: 3,
   })
-  const [animationSpeed, setAnimationSpeed] = useState([0])
+  const [animationSpeed, setAnimationSpeed] = useState([0.2])
   const [colorSettings, setColorSettings] = useState<ColorSettings>({
     pupilColor: '#e70808',
     pupilSize: 0.14,
@@ -256,7 +256,6 @@ export function SharinganDesigner() {
     setBezierPaths(loadedData.bezierPaths)
     setCurrentPathIndex(0)
     setSymmetrySettings(loadedData.symmetrySettings)
-    setAnimationSpeed(loadedData.animationSpeed)
     setColorSettings(loadedData.colorSettings)
     setIsHistoryOpen(false)
   }

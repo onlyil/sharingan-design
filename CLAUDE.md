@@ -48,9 +48,10 @@ The app uses two coordinate systems with transformation logic in `/constants/coo
 
 ### State Management
 - React hooks for local state in SharinganDesigner component
-- Bezier paths stored as arrays of `BezierPoint` objects with control points
+- Bezier paths stored as `BezierPath[]` array with individual color support
+- Each path contains `BezierPoint[]` and a color property
 - Symmetry settings control how many axes (3, 4, etc.) for pattern replication
-- Color settings include pupil color, path fill color, and pupil size ratio
+- Color settings include pupil color and pupil size ratio
 
 ### Key Interfaces
 ```typescript
@@ -63,19 +64,24 @@ interface BezierPoint {
   cp2y?: number  // Second control point Y
 }
 
+interface BezierPath {
+  points: BezierPoint[]
+  color: string  // Individual path fill color
+}
+
 interface SymmetrySettings {
   axes: number  // Number of symmetry axes
 }
 
 interface ColorSettings {
   pupilColor: string     // Default: "#e70808" (red)  
-  pathFillColor: string  // Default: "#000000" (black)
   pupilSize: number      // Default: 0.14 (ratio of radius)
 }
 ```
 
 ### UI Framework
 - Uses shadcn/ui components with Radix UI primitives
+- Sonner for toast notifications (replaces deprecated shadcn/ui toast)
 - Tailwind CSS v4.1.9 for styling
 - Dark theme support via next-themes
 - Responsive design with mobile considerations
@@ -145,6 +151,8 @@ Built-in character presets with predefined bezier paths:
 - Includes debounced localStorage persistence (500ms delay)
 - Supports PNG image export from canvas element
 - **Component Refactoring**: The sharingan-designer component has been modularized into separate tab components for better maintainability while preserving all existing functionality
+- **Data Structure Update**: Bezier paths now support individual colors via `BezierPath` interface, replacing the global `pathFillColor` approach
+- **Toast Migration**: Migrated from deprecated shadcn/ui toast to Sonner for better toast notification experience
 
 ## Common Development Tasks
 
