@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { EDITOR_CONFIG } from "@/constants/coordinate-system"
-import { useRef, useEffect, useState } from "react"
-import type { BezierPoint, BezierPath } from "./sharingan-designer"
-import { Button } from "@/components/ui/button"
+import type React from 'react'
+import { EDITOR_CONFIG } from '@/constants/coordinate-system'
+import { useRef, useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { BezierPath, BezierPoint } from '@/models/types'
 
 interface BezierEditorProps {
   pupilSize: number
@@ -13,11 +13,16 @@ interface BezierEditorProps {
   onChange: (path: BezierPoint[]) => void
 }
 
-export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }: BezierEditorProps) {
+export function BezierEditor({
+  pupilSize,
+  allPaths,
+  currentPathIndex,
+  onChange,
+}: BezierEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [dragType, setDragType] = useState<"point" | "cp1" | "cp2">("point")
+  const [dragType, setDragType] = useState<'point' | 'cp1' | 'cp2'>('point')
 
   const currentPath = allPaths[currentPathIndex]?.points || []
 
@@ -25,7 +30,7 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext("2d")
+    const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const width = EDITOR_CONFIG.WIDTH
@@ -59,7 +64,7 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
       if (Math.abs(x - point.x) < 8 && Math.abs(y - point.y) < 8) {
         setSelectedPoint(i)
         setIsDragging(true)
-        setDragType("point")
+        setDragType('point')
         return
       }
 
@@ -68,7 +73,7 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
         if (Math.abs(x - point.cp1x) < 6 && Math.abs(y - point.cp1y) < 6) {
           setSelectedPoint(i)
           setIsDragging(true)
-          setDragType("cp1")
+          setDragType('cp1')
           return
         }
       }
@@ -77,7 +82,7 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
         if (Math.abs(x - point.cp2x) < 6 && Math.abs(y - point.cp2y) < 6) {
           setSelectedPoint(i)
           setIsDragging(true)
-          setDragType("cp2")
+          setDragType('cp2')
           return
         }
       }
@@ -97,13 +102,13 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
     const newPath = [...currentPath]
     const point = newPath[selectedPoint]
 
-    if (dragType === "point") {
+    if (dragType === 'point') {
       point.x = Math.max(0, Math.min(360, x))
       point.y = Math.max(0, Math.min(280, y))
-    } else if (dragType === "cp1") {
+    } else if (dragType === 'cp1') {
       point.cp1x = Math.max(0, Math.min(360, x))
       point.cp1y = Math.max(0, Math.min(280, y))
-    } else if (dragType === "cp2") {
+    } else if (dragType === 'cp2') {
       point.cp2x = Math.max(0, Math.min(360, x))
       point.cp2y = Math.max(0, Math.min(280, y))
     }
@@ -156,7 +161,9 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
     setSelectedPoint(null)
   }
 
-  const canAddPoint = selectedPoint !== null && (selectedPoint === 0 || selectedPoint === currentPath.length - 1)
+  const canAddPoint =
+    selectedPoint !== null &&
+    (selectedPoint === 0 || selectedPoint === currentPath.length - 1)
   const canRemovePoint =
     currentPath.length > 2 &&
     selectedPoint !== null &&
@@ -174,10 +181,18 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
       />
 
       <div className="flex gap-2">
-        <Button size="sm" variant="outline" onClick={addPoint} disabled={!canAddPoint}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={addPoint}
+          disabled={!canAddPoint}>
           添加点
         </Button>
-        <Button size="sm" variant="outline" onClick={removePoint} disabled={!canRemovePoint}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={removePoint}
+          disabled={!canRemovePoint}>
           删除点
         </Button>
       </div>
@@ -189,8 +204,12 @@ export function BezierEditor({ pupilSize, allPaths, currentPathIndex, onChange }
   )
 }
 
-function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  ctx.strokeStyle = "#f3f4f6" // 从 #e5e7eb 改为更淡的 #f3f4f6
+function drawGrid(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number
+) {
+  ctx.strokeStyle = '#f3f4f6' // 从 #e5e7eb 改为更淡的 #f3f4f6
   ctx.lineWidth = 0.2
 
   // 垂直线
@@ -214,7 +233,7 @@ function drawAllBezierPaths(
   ctx: CanvasRenderingContext2D,
   allPaths: BezierPath[],
   currentPathIndex: number,
-  selectedPoint: number | null,
+  selectedPoint: number | null
 ) {
   // 先绘制所有非当前路径（置灰）
   allPaths.forEach((path, pathIndex) => {
@@ -233,15 +252,15 @@ function drawBezierPath(
   ctx: CanvasRenderingContext2D,
   path: BezierPoint[],
   selectedPoint: number | null,
-  isGrayed = false,
+  isGrayed = false
 ) {
   if (path.length < 2) return
 
-  const pathColor = isGrayed ? "#d1d5db" : "#dc2626"
-  const pointColor = isGrayed ? "#d1d5db" : "#dc2626"
-  const selectedPointColor = isGrayed ? "#d1d5db" : "#f59e0b"
-  const controlLineColor = isGrayed ? "#e5e7eb" : "#9ca3af"
-  const controlPointColor = isGrayed ? "#e5e7eb" : "#fbbf24"
+  const pathColor = isGrayed ? '#d1d5db' : '#dc2626'
+  const pointColor = isGrayed ? '#d1d5db' : '#dc2626'
+  const selectedPointColor = isGrayed ? '#d1d5db' : '#f59e0b'
+  const controlLineColor = isGrayed ? '#e5e7eb' : '#9ca3af'
+  const controlPointColor = isGrayed ? '#e5e7eb' : '#fbbf24'
 
   // 绘制路径
   ctx.strokeStyle = pathColor
@@ -257,7 +276,14 @@ function drawBezierPath(
     const prevPoint = path[i - 1]
 
     if (prevPoint.cp2x !== undefined && point.cp1x !== undefined) {
-      ctx.bezierCurveTo(prevPoint.cp2x, prevPoint.cp2y!, point.cp1x, point.cp1y!, point.x, point.y)
+      ctx.bezierCurveTo(
+        prevPoint.cp2x,
+        prevPoint.cp2y!,
+        point.cp1x,
+        point.cp1y!,
+        point.x,
+        point.y
+      )
     } else {
       ctx.lineTo(point.x, point.y)
     }
@@ -267,7 +293,8 @@ function drawBezierPath(
 
   // 绘制所有主点
   path.forEach((point, index) => {
-    ctx.fillStyle = !isGrayed && index === selectedPoint ? selectedPointColor : pointColor
+    ctx.fillStyle =
+      !isGrayed && index === selectedPoint ? selectedPointColor : pointColor
     ctx.beginPath()
     ctx.arc(point.x, point.y, isGrayed ? 3 : 4, 0, Math.PI * 2)
     ctx.fill()
@@ -316,13 +343,18 @@ function drawBezierPath(
   }
 }
 
-function drawEyeBackground(ctx: CanvasRenderingContext2D, width: number, height: number, pupilSize: number) {
+function drawEyeBackground(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  pupilSize: number
+) {
   // 贝塞尔编辑器中的中心点对应预览区的圆心位置
   const centerX = EDITOR_CONFIG.CENTER_X
   const centerY = EDITOR_CONFIG.CENTER_Y
   const radius = EDITOR_CONFIG.REFERENCE_RADIUS // 和预览区相同比例的半径，会溢出
 
-  ctx.strokeStyle = "#3b82f6"
+  ctx.strokeStyle = '#3b82f6'
   ctx.lineWidth = 1
   ctx.setLineDash([5, 5])
   ctx.beginPath()
@@ -330,14 +362,14 @@ function drawEyeBackground(ctx: CanvasRenderingContext2D, width: number, height:
   ctx.stroke()
 
   const pupilDisplayRadius = radius * pupilSize
-  ctx.strokeStyle = "#3b82f6"
+  ctx.strokeStyle = '#3b82f6'
   ctx.lineWidth = 1
   ctx.beginPath()
   ctx.arc(centerX, centerY, pupilDisplayRadius, 0, Math.PI * 2) // 瞳孔区域按配置大小显示
   ctx.stroke()
 
   // 添加中心点标记
-  ctx.fillStyle = "#9ca3af"
+  ctx.fillStyle = '#9ca3af'
   ctx.beginPath()
   ctx.arc(centerX, centerY, 2, 0, Math.PI * 2)
   ctx.fill()

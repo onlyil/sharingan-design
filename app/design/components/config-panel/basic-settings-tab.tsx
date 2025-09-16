@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
-import { SymmetrySettings, ColorSettings } from './sharingan-designer/types'
+import { SymmetrySettings, ColorSettings } from '@/models/types'
 
 interface BasicSettingsTabProps {
   symmetrySettings: SymmetrySettings
@@ -23,7 +23,7 @@ export function BasicSettingsTab({
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">
-            轴数: {symmetrySettings.axes}
+            旋转对称轴数: {symmetrySettings.axes}
           </Label>
           <Slider
             value={[symmetrySettings.axes]}

@@ -55,7 +55,7 @@
   --muted: #1a1a1a;
   --muted-foreground: #9ca3af;
   --accent: #fbbf24;
-  --accent-foreground: #0a0a0a;
+  --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   /* 增强深色主题下的边框对比度 */
@@ -72,7 +72,7 @@
   --sidebar-primary: #ef4444;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #fbbf24;
-  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-accent-foreground: #ffffff;
   /* 同步调整sidebar边框颜色 */
   --sidebar-border: #404040;
   --sidebar-ring: #ef4444;

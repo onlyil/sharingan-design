@@ -17,6 +17,7 @@ interface DataTabProps {
   isHistoryOpen: boolean
   onOpenSaveDialog: () => void
   onCloseSaveDialog: () => void
+  onCloseHistoryDialog: () => void
   onSaveDesign: () => void
   onDesignNameChange: (name: string) => void
   onReset: () => void
@@ -33,6 +34,7 @@ export function DataTab({
   isHistoryOpen,
   onOpenSaveDialog,
   onCloseSaveDialog,
+  onCloseHistoryDialog,
   onSaveDesign,
   onDesignNameChange,
   onReset,
@@ -84,7 +86,7 @@ export function DataTab({
 
       <Dialog
         open={isHistoryOpen}
-        onOpenChange={(open) => !open && onCloseSaveDialog}>
+        onOpenChange={(open) => !open && onCloseHistoryDialog()}>
         <DialogTrigger asChild>
           <Button
             variant="outline"

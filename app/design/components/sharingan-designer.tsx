@@ -255,6 +255,7 @@ export function SharinganDesigner() {
   const loadSavedDesigns = () => {
     const designs = loadDesignsFromLocalStorage(SAVED_DESIGNS_KEY)
     setSavedDesigns(designs)
+    setIsHistoryOpen(true)
   }
 
   // 从历史记录加载设计
@@ -336,6 +337,7 @@ export function SharinganDesigner() {
         onDeletePath={deleteCurrentPath}
         onOpenSaveDialog={handleOpenSaveDialog}
         onCloseSaveDialog={() => setIsSaveDialogOpen(false)}
+        onCloseHistoryDialog={() => setIsHistoryOpen(false)}
         onSaveDesign={confirmSaveDesign}
         onDesignNameChange={setDesignName}
         onReset={handleReset}

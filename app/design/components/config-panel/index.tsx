@@ -38,6 +38,7 @@ interface ConfigPanelProps {
   onDeletePath: () => void
   onOpenSaveDialog: () => void
   onCloseSaveDialog: () => void
+  onCloseHistoryDialog: () => void
   onSaveDesign: () => void
   onDesignNameChange: (name: string) => void
   onReset: () => void
@@ -69,6 +70,7 @@ export function ConfigPanel({
   onDeletePath,
   onOpenSaveDialog,
   onCloseSaveDialog,
+  onCloseHistoryDialog,
   onSaveDesign,
   onDesignNameChange,
   onReset,
@@ -151,6 +153,7 @@ export function ConfigPanel({
             isHistoryOpen={isHistoryOpen}
             onOpenSaveDialog={onOpenSaveDialog}
             onCloseSaveDialog={onCloseSaveDialog}
+            onCloseHistoryDialog={onCloseHistoryDialog}
             onSaveDesign={onSaveDesign}
             onDesignNameChange={onDesignNameChange}
             onReset={onReset}
