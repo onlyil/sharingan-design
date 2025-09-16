@@ -1,48 +1,93 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* 背景图片 */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="/uchiha-itachi-silhouette-with-sharingan-eyes-glowi.jpg"
-          alt="Uchiha Itachi"
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
-      </div>
-
-      {/* 内容区域 */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
-        {/* 标题区域 */}
-        <div className="text-center mb-12 max-w-4xl">
-          <h1 className="text-4xl md:text-8xl font-bold mb-6 text-balance">
-            <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent [&]:text-red-400">
-              Mangekyō Sharingan Design
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Create your own unique kaleidoscope of eye patterns and explore the endless artistic possibilities
-          </p>
+      {/* 大屏幕：左右布局 */}
+      <div className="hidden lg:grid lg:grid-cols-2 h-screen relative">
+        {/* 左侧：图片区域 */}
+        <div className="relative overflow-hidden">
+          <img
+            src="/home-bg.jpeg"
+            alt="Uchiha Itachi"
+            className="w-full h-full object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/20" />
+          {/* 中央融合渐变 - 更柔和的过渡 */}
+          <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-background/30 via-background/15 to-transparent pointer-events-none backdrop-blur-[1px]" />
         </div>
 
-        {/* 开始设计按钮 */}
-        <div className="flex flex-col items-center gap-6">
-          <Link href="/design">
-            <Button
-              size="lg"
-              className="px-12 py-6 text-xl font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105"
-            >
-              Have some fun
-            </Button>
-          </Link>
+        {/* 右侧：内容区域 */}
+        <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background via-background/98 to-background relative">
+          {/* 左侧融合渐变 - 更自然的过渡 */}
+          <div className="absolute top-0 left-0 w-20 h-full bg-gradient-to-r from-black/15 via-black/5 to-transparent pointer-events-none" />
+
+          {/* 中央融合桥梁 - 创建中间过渡层 */}
+          <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-background/40 via-background/20 to-transparent pointer-events-none backdrop-blur-sm" />
+          <div className="max-w-2xl text-center">
+            <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-balance">
+              <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
+                Mangekyō Sharingan Design
+              </span>
+            </h1>
+            <p className="text-xl lg:text-2xl text-muted-foreground mb-8 leading-relaxed">
+              Create your own unique Mangekyō sharingan and explore the endless
+              artistic possibilities
+            </p>
+            <Link href="/design">
+              <Button
+                size="lg"
+                className="px-12 py-6 text-xl font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105">
+                Have some fun
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* 底部装饰 */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />
+      {/* 移动端和小屏：保持原有布局 */}
+      <div className="lg:hidden">
+        {/* 背景图片 */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/home-bg.jpeg"
+            alt="Uchiha Itachi"
+            className="w-full h-full object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+        </div>
+
+        {/* 内容区域 */}
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+          {/* 标题区域 */}
+          <div className="text-center mb-12 max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">
+              <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
+                Mangekyō Sharingan Design
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Create your own unique Mangekyō sharingan and explore the endless
+              the endless artistic possibilities
+            </p>
+          </div>
+
+          {/* 开始设计按钮 */}
+          <div className="flex flex-col items-center gap-6">
+            <Link href="/design">
+              <Button
+                size="lg"
+                className="px-12 py-6 text-xl font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105">
+                Have some fun
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* 底部装饰 */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />
+      </div>
     </main>
   )
 }
