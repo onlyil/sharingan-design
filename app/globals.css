@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* 更新为写轮眼主题的设计令牌 */
+  /* Updated design tokens for Sharingan theme */
   --background: #ffffff;
   --foreground: #374151;
   --card: #fef2f2;
@@ -41,7 +41,7 @@
 }
 
 .dark {
-  /* 将深色主题的颜色调整得更深更黑 */
+  /* Adjust dark theme colors to be deeper and darker */
   --background: #0a0a0a;
   --foreground: #f9fafb;
   --card: #1a1a1a;
@@ -58,7 +58,7 @@
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  /* 增强深色主题下的边框对比度 */
+  /* Enhance border contrast in dark theme */
   --border: #404040;
   --input: #404040;
   --ring: #ef4444;
@@ -73,7 +73,7 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #fbbf24;
   --sidebar-accent-foreground: #ffffff;
-  /* 同步调整sidebar边框颜色 */
+  /* Synchronize sidebar border color adjustment */
   --sidebar-border: #404040;
   --sidebar-ring: #ef4444;
 }
@@ -97,7 +97,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  /* 添加缺失的边框和输入框颜色定义 */
+  /* Add missing border and input box color definitions */
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

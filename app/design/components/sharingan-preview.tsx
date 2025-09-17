@@ -1,8 +1,16 @@
-"use client"
+'use client'
 
-import { useEffect, useRef } from "react"
-import type { BezierPoint, BezierPath, SymmetrySettings, ColorSettings } from "./sharingan-designer"
-import { PREVIEW_CONFIG, COORDINATE_TRANSFORM } from "@/constants/coordinate-system"
+import { useEffect, useRef } from 'react'
+import type {
+  BezierPoint,
+  BezierPath,
+  SymmetrySettings,
+  ColorSettings,
+} from '@/models/types'
+import {
+  PREVIEW_CONFIG,
+  COORDINATE_TRANSFORM,
+} from '@/constants/coordinate-system'
 
 interface SharinganPreviewProps {
   bezierPaths: BezierPath[]
@@ -25,7 +33,7 @@ export function SharinganPreview({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext("2d")
+    const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const size = PREVIEW_CONFIG.SIZE
@@ -39,7 +47,14 @@ export function SharinganPreview({
     const animate = () => {
       ctx.clearRect(0, 0, size, size)
 
-      drawSharinganBackground(ctx, centerX, centerY, radius, colorSettings.pupilColor, false)
+      drawSharinganBackground(
+        ctx,
+        centerX,
+        centerY,
+        radius,
+        colorSettings.pupilColor,
+        false
+      )
 
       bezierPaths.forEach((bezierPath) => {
         drawSymmetricPaths(
@@ -50,13 +65,20 @@ export function SharinganPreview({
           bezierPath.points,
           symmetrySettings,
           rotationRef.current,
-          bezierPath.color,
+          bezierPath.color
         )
       })
 
-      drawPupil(ctx, centerX, centerY, radius, colorSettings.pupilColor, colorSettings.pupilSize)
+      drawPupil(
+        ctx,
+        centerX,
+        centerY,
+        radius,
+        colorSettings.pupilColor,
+        colorSettings.pupilSize
+      )
 
-      // 更新旋转角度
+      // Update rotation angle
       rotationRef.current += animationSpeed * 0.02
 
       animationRef.current = requestAnimationFrame(animate)
@@ -73,7 +95,11 @@ export function SharinganPreview({
 
   return (
     <div className="relative">
-      <canvas ref={canvasRef} className="" style={{ filter: "drop-shadow(0 0 20px rgba(220, 38, 38, 0.3))" }} />
+      <canvas
+        ref={canvasRef}
+        className=""
+        style={{ filter: 'drop-shadow(0 0 20px rgba(220, 38, 38, 0.3))' }}
+      />
     </div>
   )
 }
@@ -84,20 +110,20 @@ function drawSharinganBackground(
   centerY: number,
   radius: number,
   pupilColor: string,
-  drawPupil = true, // 添加参数控制是否绘制瞳孔
+  drawPupil = true // Add parameter to control whether to draw pupil
 ) {
-  // 外圆 - 红色背景
+  // Outer circle - red background
   ctx.beginPath()
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-  ctx.fillStyle = "#B20000"
+  ctx.fillStyle = '#B20000'
   ctx.fill()
-  ctx.strokeStyle = "#000000"
+  ctx.strokeStyle = '#000000'
   ctx.lineWidth = 6
   ctx.stroke()
 
   ctx.beginPath()
   ctx.arc(centerX, centerY, radius * 0.5, 0, Math.PI * 2)
-  ctx.strokeStyle = "#890001"
+  ctx.strokeStyle = '#890001'
   ctx.lineWidth = 3
   ctx.stroke()
 }
@@ -108,14 +134,14 @@ function drawPupil(
   centerY: number,
   radius: number,
   pupilColor: string,
-  pupilSize = 0.15,
+  pupilSize = 0.15
 ) {
-  // 内圆 - 瞳孔颜色
+  // Inner circle - pupil color
   ctx.beginPath()
   ctx.arc(centerX, centerY, radius * pupilSize, 0, Math.PI * 2)
   ctx.fillStyle = pupilColor
   ctx.fill()
-  ctx.strokeStyle = "#000000"
+  ctx.strokeStyle = '#000000'
   ctx.lineWidth = 1
 }
 
@@ -127,7 +153,7 @@ function drawSymmetricPaths(
   bezierPath: BezierPoint[],
   symmetrySettings: SymmetrySettings,
   rotation: number,
-  pathFillColor: string,
+  pathFillColor: string
 ) {
   if (bezierPath.length < 2) return
 
@@ -144,10 +170,14 @@ function drawSymmetricPaths(
 
     ctx.rotate((i * Math.PI * 2) / symmetrySettings.axes)
 
-    // 绘制贝塞尔路径
+    // Draw Bezier path
     ctx.beginPath()
     const firstPoint = bezierPath[0]
-    const [firstX, firstY] = COORDINATE_TRANSFORM.editorToPreview(firstPoint.x, firstPoint.y, scale)
+    const [firstX, firstY] = COORDINATE_TRANSFORM.editorToPreview(
+      firstPoint.x,
+      firstPoint.y,
+      scale
+    )
     ctx.moveTo(firstX, firstY)
 
     for (let j = 1; j < bezierPath.length; j++) {
@@ -155,13 +185,29 @@ function drawSymmetricPaths(
       const prevPoint = bezierPath[j - 1]
 
       if (prevPoint.cp2x !== undefined && point.cp1x !== undefined) {
-        const [cp2X, cp2Y] = COORDINATE_TRANSFORM.editorToPreview(prevPoint.cp2x, prevPoint.cp2y!, scale)
-        const [cp1X, cp1Y] = COORDINATE_TRANSFORM.editorToPreview(point.cp1x, point.cp1y!, scale)
-        const [pointX, pointY] = COORDINATE_TRANSFORM.editorToPreview(point.x, point.y, scale)
+        const [cp2X, cp2Y] = COORDINATE_TRANSFORM.editorToPreview(
+          prevPoint.cp2x,
+          prevPoint.cp2y!,
+          scale
+        )
+        const [cp1X, cp1Y] = COORDINATE_TRANSFORM.editorToPreview(
+          point.cp1x,
+          point.cp1y!,
+          scale
+        )
+        const [pointX, pointY] = COORDINATE_TRANSFORM.editorToPreview(
+          point.x,
+          point.y,
+          scale
+        )
 
         ctx.bezierCurveTo(cp2X, cp2Y, cp1X, cp1Y, pointX, pointY)
       } else {
-        const [pointX, pointY] = COORDINATE_TRANSFORM.editorToPreview(point.x, point.y, scale)
+        const [pointX, pointY] = COORDINATE_TRANSFORM.editorToPreview(
+          point.x,
+          point.y,
+          scale
+        )
         ctx.lineTo(pointX, pointY)
       }
     }

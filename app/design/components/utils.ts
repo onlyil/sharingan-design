@@ -6,7 +6,7 @@ import {
   SavedDesign,
 } from '@/models/types'
 
-// 生成默认设计名称
+// Generate default design name
 export function generateDefaultDesignName(): string {
   const now = new Date()
   const timeString = now
@@ -18,10 +18,10 @@ export function generateDefaultDesignName(): string {
       hour12: false,
     })
     .replace(/[/\s:]/g, '')
-  return `设计_${timeString}`
+  return `Design_${timeString}`
 }
 
-// 复制配置到剪贴板
+// Copy configuration to clipboard
 export async function copyConfigToClipboard(config: {
   bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
@@ -36,7 +36,7 @@ export async function copyConfigToClipboard(config: {
   await navigator.clipboard.writeText(JSON.stringify(configData, null, 2))
 }
 
-// 创建新路径
+// Create new path
 export function createNewPath(): BezierPoint[] {
   return [
     {
@@ -58,7 +58,7 @@ export function createNewPath(): BezierPoint[] {
   ]
 }
 
-// 保存设计到本地存储
+// Save design to local storage
 export function saveDesignToLocalStorage(
   designName: string,
   config: {
@@ -82,7 +82,7 @@ export function saveDesignToLocalStorage(
   window.localStorage.setItem(storageKey, JSON.stringify(savedDesigns))
 }
 
-// 从本地存储加载设计
+// Load designs from local storage
 export function loadDesignsFromLocalStorage(
   storageKey: string = 'sharingan-saved-designs'
 ): SavedDesign[] {
@@ -97,7 +97,7 @@ export function loadDesignsFromLocalStorage(
   }
 }
 
-// 删除设计
+// Delete design
 export function deleteDesignFromLocalStorage(
   index: number,
   storageKey: string = 'sharingan-saved-designs'
@@ -108,7 +108,7 @@ export function deleteDesignFromLocalStorage(
   return updatedDesigns
 }
 
-// 加载设计数据（支持向后兼容）
+// Load design data (backward compatibility support)
 export function loadDesignData(design: any): {
   bezierPaths: BezierPath[]
   symmetrySettings: SymmetrySettings
@@ -118,16 +118,16 @@ export function loadDesignData(design: any): {
   let bezierPaths: BezierPath[] = []
 
   if (design.bezierPath && Array.isArray(design.bezierPath)) {
-    // 老的单路径数据转换为新结构
+    // Convert old single path data to new structure
     const defaultColor = design.colorSettings?.pathFillColor || '#000000'
     bezierPaths = [{ points: design.bezierPath, color: defaultColor }]
   } else if (design.bezierPaths && Array.isArray(design.bezierPaths)) {
-    // 检查是否是新结构
+    // Check if it's the new structure
     if (design.bezierPaths.length > 0 && design.bezierPaths[0].points) {
-      // 新结构，直接使用
+      // New structure, use directly
       bezierPaths = design.bezierPaths
     } else {
-      // 老的多路径数据结构转换
+      // Convert old multi-path data structure
       const defaultColor = design.colorSettings?.pathFillColor || '#000000'
       bezierPaths = design.bezierPaths.map((path: BezierPoint[]) => ({
         points: path,

@@ -15,7 +15,7 @@ interface Preset {
 
 const presets: Preset[] = [
   {
-    name: '鼬',
+    name: 'Itachi',
     image: '/Itachi.png',
     bezierPaths: [
       {
@@ -58,7 +58,7 @@ const presets: Preset[] = [
   },
 
   {
-    name: '止水',
+    name: 'Shisui',
     image: '/Shisui.png',
     bezierPaths: [
       {

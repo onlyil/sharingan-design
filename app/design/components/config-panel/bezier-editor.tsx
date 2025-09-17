@@ -38,10 +38,10 @@ export function BezierEditor({
     canvas.width = width
     canvas.height = height
 
-    // 清空画布
+    // Clear canvas
     ctx.clearRect(0, 0, width, height)
 
-    // 绘制网格
+    // Draw grid
     drawGrid(ctx, width, height)
 
     drawEyeBackground(ctx, width, height, pupilSize)
@@ -60,7 +60,7 @@ export function BezierEditor({
     for (let i = 0; i < currentPath.length; i++) {
       const point = currentPath[i]
 
-      // 检查主点
+      // Check main point
       if (Math.abs(x - point.x) < 8 && Math.abs(y - point.y) < 8) {
         setSelectedPoint(i)
         setIsDragging(true)
@@ -68,7 +68,7 @@ export function BezierEditor({
         return
       }
 
-      // 检查控制点
+      // Check control points
       if (point.cp1x !== undefined && point.cp1y !== undefined) {
         if (Math.abs(x - point.cp1x) < 6 && Math.abs(y - point.cp1y) < 6) {
           setSelectedPoint(i)
@@ -138,13 +138,13 @@ export function BezierEditor({
     }
 
     if (isStartPoint) {
-      // 在起始位置添加点
+      // Add point at start position
       onChange([newPoint, ...currentPath])
-      setSelectedPoint(0) // 保持选中新添加的起始点
+      setSelectedPoint(0) // Keep the newly added start point selected
     } else {
-      // 在末尾添加点
+      // Add point at end
       onChange([...currentPath, newPoint])
-      setSelectedPoint(currentPath.length) // 选中新添加的末尾点
+      setSelectedPoint(currentPath.length) // Select the newly added end point
     }
   }
 
@@ -186,19 +186,20 @@ export function BezierEditor({
           variant="outline"
           onClick={addPoint}
           disabled={!canAddPoint}>
-          添加点
+          Add Point
         </Button>
         <Button
           size="sm"
           variant="outline"
           onClick={removePoint}
           disabled={!canRemovePoint}>
-          删除点
+          Remove Point
         </Button>
       </div>
 
       <div className="text-xs text-muted-foreground">
-        点击并拖拽路径点或控制点来编辑曲线。选中起始点或结束点时可添加/删除点。
+        Click and drag path points or control points to edit curves. You can
+        add/remove points when start or end points are selected.
       </div>
     </div>
   )
@@ -209,10 +210,10 @@ function drawGrid(
   width: number,
   height: number
 ) {
-  ctx.strokeStyle = '#f3f4f6' // 从 #e5e7eb 改为更淡的 #f3f4f6
+  ctx.strokeStyle = '#f3f4f6'
   ctx.lineWidth = 0.2
 
-  // 垂直线
+  // Vertical lines
   for (let x = 0; x <= width; x += 20) {
     ctx.beginPath()
     ctx.moveTo(x, 0)
@@ -220,7 +221,7 @@ function drawGrid(
     ctx.stroke()
   }
 
-  // 水平线
+  // Horizontal lines
   for (let y = 0; y <= height; y += 20) {
     ctx.beginPath()
     ctx.moveTo(0, y)
@@ -235,14 +236,14 @@ function drawAllBezierPaths(
   currentPathIndex: number,
   selectedPoint: number | null
 ) {
-  // 先绘制所有非当前路径（置灰）
+  // First draw all non-current paths (grayed out)
   allPaths.forEach((path, pathIndex) => {
     if (pathIndex !== currentPathIndex) {
-      drawBezierPath(ctx, path.points, null, true) // 置灰显示
+      drawBezierPath(ctx, path.points, null, true) // Display grayed out
     }
   })
 
-  // 最后绘制当前路径（正常显示）
+  // Finally draw current path (normal display)
   if (allPaths[currentPathIndex]) {
     drawBezierPath(ctx, allPaths[currentPathIndex].points, selectedPoint, false)
   }
@@ -262,7 +263,7 @@ function drawBezierPath(
   const controlLineColor = isGrayed ? '#e5e7eb' : '#9ca3af'
   const controlPointColor = isGrayed ? '#e5e7eb' : '#fbbf24'
 
-  // 绘制路径
+  // Draw path
   ctx.strokeStyle = pathColor
   ctx.lineWidth = isGrayed ? 1 : 2
   ctx.setLineDash([])
@@ -291,7 +292,7 @@ function drawBezierPath(
 
   ctx.stroke()
 
-  // 绘制所有主点
+  // Draw all main points
   path.forEach((point, index) => {
     ctx.fillStyle =
       !isGrayed && index === selectedPoint ? selectedPointColor : pointColor
@@ -303,7 +304,7 @@ function drawBezierPath(
   if (!isGrayed && selectedPoint !== null && selectedPoint < path.length) {
     const point = path[selectedPoint]
 
-    // 绘制控制点连线
+    // Draw control point lines
     if (point.cp1x !== undefined) {
       ctx.strokeStyle = controlLineColor
       ctx.lineWidth = 1
@@ -326,7 +327,7 @@ function drawBezierPath(
       ctx.setLineDash([])
     }
 
-    // 绘制控制点
+    // Draw control points
     if (point.cp1x !== undefined) {
       ctx.fillStyle = controlPointColor
       ctx.beginPath()
@@ -349,10 +350,10 @@ function drawEyeBackground(
   height: number,
   pupilSize: number
 ) {
-  // 贝塞尔编辑器中的中心点对应预览区的圆心位置
+  // Center point in Bezier editor corresponds to the center position in preview area
   const centerX = EDITOR_CONFIG.CENTER_X
   const centerY = EDITOR_CONFIG.CENTER_Y
-  const radius = EDITOR_CONFIG.REFERENCE_RADIUS // 和预览区相同比例的半径，会溢出
+  const radius = EDITOR_CONFIG.REFERENCE_RADIUS // Same proportional radius as preview area, will overflow
 
   ctx.strokeStyle = '#3b82f6'
   ctx.lineWidth = 1
@@ -365,10 +366,10 @@ function drawEyeBackground(
   ctx.strokeStyle = '#3b82f6'
   ctx.lineWidth = 1
   ctx.beginPath()
-  ctx.arc(centerX, centerY, pupilDisplayRadius, 0, Math.PI * 2) // 瞳孔区域按配置大小显示
+  ctx.arc(centerX, centerY, pupilDisplayRadius, 0, Math.PI * 2) // Pupil area displayed according to configured size
   ctx.stroke()
 
-  // 添加中心点标记
+  // Add center point marker
   ctx.fillStyle = '#9ca3af'
   ctx.beginPath()
   ctx.arc(centerX, centerY, 2, 0, Math.PI * 2)

@@ -46,24 +46,24 @@ export function DataTab({
   return (
     <div className="space-y-2">
       <Button className="w-full" onClick={onReset}>
-        重置为默认
+        Reset to Default
       </Button>
       <Button
         variant="outline"
         className="w-full bg-transparent"
         onClick={onOpenSaveDialog}>
-        保存当前设计
+        Save Current Design
       </Button>
 
       <Dialog open={isSaveDialogOpen} onOpenChange={onCloseSaveDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>保存设计</DialogTitle>
+            <DialogTitle>Save Design</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="design-name" className="text-sm font-medium">
-                设计名称
+                Design Name
               </Label>
               <input
                 id="design-name"
@@ -71,14 +71,14 @@ export function DataTab({
                 value={designName}
                 onChange={(e) => onDesignNameChange(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="请输入设计名称"
+                placeholder="Enter design name"
               />
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={onCloseSaveDialog}>
-                取消
+                Cancel
               </Button>
-              <Button onClick={onSaveDesign}>保存</Button>
+              <Button onClick={onSaveDesign}>Save</Button>
             </div>
           </div>
         </DialogContent>
@@ -92,19 +92,17 @@ export function DataTab({
             variant="outline"
             className="w-full bg-transparent"
             onClick={onLoadSavedDesigns}>
-            历史记录
+            History
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>历史记录</DialogTitle>
+            <DialogTitle>Design History</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-96">
             <div className="space-y-2">
               {savedDesigns.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  暂无保存的设计
-                </p>
+                <p className="text-muted-foreground text-center py-8">No saved designs</p>
               ) : (
                 savedDesigns.map((design, index) => (
                   <Card key={index} className="p-3">
@@ -114,14 +112,7 @@ export function DataTab({
                         <p className="text-xs text-muted-foreground">
                           {new Date(design.timestamp).toLocaleString()}
                         </p>
-                        <div className="flex gap-2 mt-1">
-                          <span className="text-xs bg-muted px-1 rounded">
-                            旋转
-                          </span>
-                          <span className="text-xs bg-muted px-1 rounded">
-                            {design.symmetrySettings.axes}轴
-                          </span>
-                        </div>
+                        <p className="text-xs text-muted-foreground">Rotation: {design.rotation}°</p>
                       </div>
                       <div className="flex flex-col gap-1">
                         <Button
@@ -129,14 +120,14 @@ export function DataTab({
                           variant="outline"
                           onClick={() => onLoadDesign(design)}
                           className="text-xs h-6">
-                          加载
-                        </Button>
+                           Load
+                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
                           onClick={() => onDeleteDesign(index)}
                           className="text-xs h-6">
-                          删除
+                          Delete
                         </Button>
                       </div>
                     </div>
@@ -151,7 +142,7 @@ export function DataTab({
         variant="outline"
         className="w-full bg-transparent"
         onClick={onCopyConfig}>
-        复制当前配置
+        Copy Current Config
       </Button>
     </div>
   )

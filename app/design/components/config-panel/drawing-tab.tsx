@@ -37,7 +37,7 @@ export function DrawingTab({
     <div className="space-y-4">
       <Card className="p-4">
         <div className="mb-3">
-          <Label className="text-sm font-medium">贝塞尔路径编辑器</Label>
+          <Label className="text-sm font-medium">Bezier Path Editor</Label>
         </div>
         <BezierEditor
           pupilSize={pupilSize}
@@ -58,7 +58,7 @@ export function DrawingTab({
               <SelectContent>
                 {bezierPaths.map((_, index) => (
                   <SelectItem key={index} value={index.toString()}>
-                    路径 {index + 1}
+                    Path {index + 1}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -69,13 +69,13 @@ export function DrawingTab({
               onClick={onDeletePath}
               disabled={bezierPaths.length <= 1}
               className="text-destructive hover:text-destructive bg-transparent">
-              删除
+              Delete
             </Button>
           </div>
 
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">
-              路径填充颜色
+              Path Fill Color
             </Label>
             <RadioGroup
               value={bezierPaths[currentPathIndex]?.color || '#000000'}
@@ -89,7 +89,7 @@ export function DrawingTab({
                   htmlFor="path-black"
                   className="flex items-center gap-2 cursor-pointer">
                   <div className="w-4 h-4 rounded-full bg-black border border-border"></div>
-                  <span className="text-sm">黑色</span>
+                  <span className="text-sm">Black</span>
                   <span className="text-xs text-muted-foreground font-mono">
                     #000000
                   </span>
@@ -103,7 +103,7 @@ export function DrawingTab({
                   <div
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: '#B20000' }}></div>
-                  <span className="text-sm">红色</span>
+                  <span className="text-sm">Red</span>
                   <span className="text-xs text-muted-foreground font-mono">
                     #B20000
                   </span>
@@ -117,7 +117,7 @@ export function DrawingTab({
             variant="outline"
             onClick={onAddNewPath}
             className="mt-3 w-full bg-transparent">
-            添加路径
+            Add Path
           </Button>
         </div>
       </Card>

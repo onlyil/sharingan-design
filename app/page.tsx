@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button'
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* 大屏幕：左右布局 */}
+      {/* Large screen: left-right layout */}
       <div className="hidden lg:grid lg:grid-cols-2 h-screen relative">
-        {/* 左侧：图片区域 */}
+        {/* Left side: image area */}
         <div className="relative overflow-hidden">
           <img
             src="/home-bg.jpeg"
@@ -14,16 +14,16 @@ export default function HomePage() {
             className="w-full h-full object-cover opacity-80"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/20" />
-          {/* 中央融合渐变 - 更柔和的过渡 */}
+          {/* Central blend gradient - softer transition */}
           <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-background/30 via-background/15 to-transparent pointer-events-none backdrop-blur-[1px]" />
         </div>
 
-        {/* 右侧：内容区域 */}
+        {/* Right side: content area */}
         <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background via-background/98 to-background relative">
-          {/* 左侧融合渐变 - 更自然的过渡 */}
+          {/* Left side blend gradient - more natural transition */}
           <div className="absolute top-0 left-0 w-20 h-full bg-gradient-to-r from-black/15 via-black/5 to-transparent pointer-events-none" />
 
-          {/* 中央融合桥梁 - 创建中间过渡层 */}
+          {/* Central blend bridge - create middle transition layer */}
           <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-background/40 via-background/20 to-transparent pointer-events-none backdrop-blur-sm" />
           <div className="max-w-2xl text-center">
             <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-balance">
@@ -46,9 +46,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 移动端和小屏：保持原有布局 */}
+      {/* Mobile and small screen: keep original layout */}
       <div className="lg:hidden">
-        {/* 背景图片 */}
+        {/* Background image */}
         <div className="absolute inset-0 z-0">
           <img
             src="/home-bg.jpeg"
@@ -58,9 +58,9 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
         </div>
 
-        {/* 内容区域 */}
+        {/* Content area */}
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
-          {/* 标题区域 */}
+          {/* Title area */}
           <div className="text-center mb-12 max-w-4xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">
               <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
@@ -73,7 +73,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* 开始设计按钮 */}
+          {/* Start design button */}
           <div className="flex flex-col items-center gap-6">
             <Link href="/design">
               <Button
@@ -85,7 +85,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 底部装饰 */}
+        {/* Bottom decoration */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />
       </div>
     </main>

@@ -47,7 +47,7 @@ export function SharinganDesigner() {
   const STORAGE_KEY = 'sharingan-designer-data'
   const SAVED_DESIGNS_KEY = 'sharingan-saved-designs'
 
-  // 初始化数据
+  // Initialize data
   useEffect(() => {
     const savedData = window.localStorage.getItem(STORAGE_KEY)
     let shouldUseDefaults = true
@@ -98,7 +98,7 @@ export function SharinganDesigner() {
     setIsDataInitialized(true)
   }, [])
 
-  // 保存当前状态到本地存储
+  // Save current state to local storage
   useEffect(() => {
     const dataToSave = {
       bezierPaths,
@@ -117,11 +117,11 @@ export function SharinganDesigner() {
     isDataInitialized,
   ])
 
-  // 加载预设
+  // Load preset
   const loadPreset = (presetName: string) => {
     const preset = presets.find((p) => p.name === presetName)
     if (preset) {
-      // 转换预设数据为新结构
+      // Convert preset data to new structure
       const convertedPaths = preset.bezierPaths.map((path: BezierPath) => ({
         points: path.points,
         color: path.color || '#000000',
@@ -137,7 +137,7 @@ export function SharinganDesigner() {
     }
   }
 
-  // 重置为默认
+  // Reset to default
   const handleReset = () => {
     const defaultPreset = presets[0]
     const convertedPaths = defaultPreset.bezierPaths.map(
@@ -156,27 +156,27 @@ export function SharinganDesigner() {
     setCurrentPreset(defaultPreset.name)
   }
 
-  // 添加新路径
+  // Add new path
   const addNewPath = () => {
     const newPathPoints = createNewPath()
     const newPath: BezierPath = {
       points: newPathPoints,
-      color: '#000000', // 新路径默认黑色
+      color: '#000000', // New path defaults to black
     }
     const newPaths = [...bezierPaths, newPath]
     setBezierPaths(newPaths)
     setCurrentPathIndex(newPaths.length - 1)
 
-    toast.success(`已添加第 ${newPaths.length} 个路径`, {
-      description: '路径已添加',
+    toast.success(`Added path ${newPaths.length}`, {
+      description: 'Path added',
     })
   }
 
-  // 删除当前路径
+  // Delete current path
   const deleteCurrentPath = () => {
     if (bezierPaths.length <= 1) {
-      toast.error('至少需要保留一个路径', {
-        description: '无法删除',
+      toast.error('At least one path must be kept', {
+        description: 'Cannot delete',
       })
       return
     }
@@ -190,12 +190,12 @@ export function SharinganDesigner() {
       setCurrentPathIndex(newPaths.length - 1)
     }
 
-    toast.success(`已删除路径 ${currentPathIndex + 1}`, {
-      description: '路径已删除',
+    toast.success(`Deleted path ${currentPathIndex + 1}`, {
+      description: 'Path deleted',
     })
   }
 
-  // 更新当前路径
+  // Update current path
   const updateCurrentPath = (newPath: BezierPoint[]) => {
     const newPaths = [...bezierPaths]
     newPaths[currentPathIndex] = {
@@ -205,11 +205,11 @@ export function SharinganDesigner() {
     setBezierPaths(newPaths)
   }
 
-  // 保存设计
+  // Save design
   const confirmSaveDesign = () => {
     if (!designName.trim()) {
-      toast.error('请输入设计名称', {
-        description: '输入错误',
+      toast.error('Please enter design name', {
+        description: 'Input error',
       })
       return
     }
@@ -228,29 +228,29 @@ export function SharinganDesigner() {
     )
     setIsSaveDialogOpen(false)
 
-    // 重新加载保存的设计列表
+    // Reload saved designs list
     const updatedDesigns = loadDesignsFromLocalStorage(SAVED_DESIGNS_KEY)
     setSavedDesigns(updatedDesigns)
 
-    toast.success(`设计已保存为: ${designName}`, {
-      description: '保存成功',
+    toast.success(`Design saved as: ${designName}`, {
+      description: 'Save successful',
     })
   }
 
-  // 打开保存对话框
+  // Open save dialog
   const handleOpenSaveDialog = () => {
     setDesignName(generateDefaultDesignName())
     setIsSaveDialogOpen(true)
   }
 
-  // 加载保存的设计列表
+  // Load saved designs list
   const loadSavedDesigns = () => {
     const designs = loadDesignsFromLocalStorage(SAVED_DESIGNS_KEY)
     setSavedDesigns(designs)
     setIsHistoryOpen(true)
   }
 
-  // 从历史记录加载设计
+  // Load design from history
   const loadDesignFromHistory = (design: SavedDesign) => {
     const loadedData = loadDesignData(design)
     setBezierPaths(loadedData.bezierPaths)
@@ -260,7 +260,7 @@ export function SharinganDesigner() {
     setIsHistoryOpen(false)
   }
 
-  // 删除设计
+  // Delete design
   const deleteDesign = (index: number) => {
     const updatedDesigns = deleteDesignFromLocalStorage(
       index,
@@ -269,7 +269,7 @@ export function SharinganDesigner() {
     setSavedDesigns(updatedDesigns)
   }
 
-  // 复制当前配置
+  // Copy current configuration
   const copyCurrentConfig = async () => {
     const currentConfig = {
       bezierPaths,
@@ -280,13 +280,13 @@ export function SharinganDesigner() {
 
     try {
       await copyConfigToClipboard(currentConfig)
-      toast.success('配置已复制到剪贴板', {
-        description: '复制成功',
+      toast.success('Configuration copied to clipboard', {
+        description: 'Copy successful',
       })
     } catch (error) {
-      console.error('复制失败:', error)
-      toast.error('复制失败，请检查浏览器权限', {
-        description: '复制失败',
+      console.error('Copy failed:', error)
+      toast.error('Copy failed, please check browser permissions', {
+        description: 'Copy failed',
       })
     }
   }

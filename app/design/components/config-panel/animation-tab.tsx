@@ -14,11 +14,11 @@ export function AnimationTab({
   return (
     <div className="space-y-4">
       <Card className="p-4 space-y-4">
-        <Label className="text-sm font-medium">动画设置</Label>
+        <Label className="text-sm font-medium">Animation Settings</Label>
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">
-            旋转速度: {animationSpeed[0].toFixed(1)}x
+            Animation Speed: {animationSpeed[0].toFixed(1)}x
           </Label>
           <Slider
             value={animationSpeed}

@@ -14,7 +14,7 @@ import {
 } from '@/models/types'
 
 interface ConfigPanelProps {
-  // 核心状态
+  // Core state
   activeTab: string
   bezierPaths: BezierPath[]
   currentPathIndex: number
@@ -27,7 +27,7 @@ interface ConfigPanelProps {
   designName: string
   isHistoryOpen: boolean
 
-  // 回调函数
+  // Callback functions
   onTabChange: (tabId: string) => void
   onBezierPathsChange: (paths: BezierPath[]) => void
   onCurrentPathIndexChange: (index: number) => void
@@ -80,11 +80,11 @@ export function ConfigPanel({
   onLoadSavedDesigns,
 }: ConfigPanelProps) {
   const tabs = [
-    { id: 'draw', label: '绘制', icon: Zap },
-    { id: 'basic', label: '基础', icon: Settings },
-    { id: 'color', label: '颜色', icon: Palette },
-    { id: 'animation', label: '动画', icon: Play },
-    { id: 'data', label: '数据', icon: Archive },
+    { id: 'draw', label: 'Draw', icon: Zap },
+    { id: 'basic', label: 'Basic', icon: Settings },
+    { id: 'color', label: 'Color', icon: Palette },
+    { id: 'animation', label: 'Animation', icon: Play },
+    { id: 'data', label: 'Data', icon: Archive },
   ]
 
   const updateCurrentPath = (newPath: BezierPoint[]) => {
@@ -173,7 +173,7 @@ export function ConfigPanel({
     <div className="flex bg-card border-l border-border">
       <div className="w-16 bg-muted/30 border-r border-border flex flex-col">
         <div className="p-2 border-b border-border">
-          <h2 className="text-xs font-bold text-center text-primary">设置</h2>
+          <h2 className="text-xs font-bold text-center text-primary">Settings</h2>
         </div>
         <div className="flex-1 py-2">
           {tabs.map((tab) => {

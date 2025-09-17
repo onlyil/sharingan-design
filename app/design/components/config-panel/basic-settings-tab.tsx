@@ -19,11 +19,11 @@ export function BasicSettingsTab({
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <Label className="text-sm font-medium">基础设置</Label>
+        <Label className="text-sm font-medium">Basic Settings</Label>
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">
-            旋转对称轴数: {symmetrySettings.axes}
+            Rotational Symmetry Axes: {symmetrySettings.axes}
           </Label>
           <Slider
             value={[symmetrySettings.axes]}
@@ -39,7 +39,7 @@ export function BasicSettingsTab({
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">
-            瞳孔大小: {(colorSettings.pupilSize * 100).toFixed(0)}%
+            Pupil Size: {(colorSettings.pupilSize * 100).toFixed(0)}%
           </Label>
           <Slider
             value={[colorSettings.pupilSize]}
