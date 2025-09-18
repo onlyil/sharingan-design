@@ -82,19 +82,23 @@ export function BezierEditor({
     const y = e.clientY - rect.top
 
     const newPath = [...currentPath]
-    const point = newPath[selectedPoint]
-
+    const originalPoint = newPath[selectedPoint]
+    
+    // 创建新的点对象，保持不可变性
+    const newPoint = { ...originalPoint }
+    
     if (dragType === 'point') {
-      point.x = Math.max(0, Math.min(360, x))
-      point.y = Math.max(0, Math.min(280, y))
+      newPoint.x = Math.max(0, Math.min(360, x))
+      newPoint.y = Math.max(0, Math.min(280, y))
     } else if (dragType === 'cp1') {
-      point.cp1x = Math.max(0, Math.min(360, x))
-      point.cp1y = Math.max(0, Math.min(280, y))
+      newPoint.cp1x = Math.max(0, Math.min(360, x))
+      newPoint.cp1y = Math.max(0, Math.min(280, y))
     } else if (dragType === 'cp2') {
-      point.cp2x = Math.max(0, Math.min(360, x))
-      point.cp2y = Math.max(0, Math.min(280, y))
+      newPoint.cp2x = Math.max(0, Math.min(360, x))
+      newPoint.cp2y = Math.max(0, Math.min(280, y))
     }
 
+    newPath[selectedPoint] = newPoint
     onChange(newPath)
   }
 

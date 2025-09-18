@@ -187,6 +187,8 @@ export function SharinganDesigner() {
     const newShapes = [...shapes, newShape]
     setShapes(newShapes)
     setCurrentShapeIndex(newShapes.length - 1)
+    // 当添加新形状时，清空preset选择状态
+    setCurrentPreset('')
 
     const shapeName = shapeType.charAt(0).toUpperCase() + shapeType.slice(1)
     toast.success(`Added ${shapeName} ${newShapes.length}`, {
@@ -209,6 +211,8 @@ export function SharinganDesigner() {
     if (currentShapeIndex >= newShapes.length) {
       setCurrentShapeIndex(newShapes.length - 1)
     }
+    // 当删除形状时，清空preset选择状态
+    setCurrentPreset('')
 
     toast.success(`Deleted shape ${currentShapeIndex + 1}`, {
       description: 'Shape deleted',
@@ -234,6 +238,8 @@ export function SharinganDesigner() {
     const newShapes = [...shapes]
     newShapes[index] = { ...newShapes[index], color }
     setShapes(newShapes)
+    // 当形状颜色被修改时，清空preset选择状态
+    setCurrentPreset('')
   }
 
   // Save design
@@ -375,6 +381,7 @@ export function SharinganDesigner() {
         onSymmetryChange={setSymmetrySettings}
         onAnimationSpeedChange={setAnimationSpeed}
         onColorSettingsChange={setColorSettings}
+        onCurrentPresetChange={setCurrentPreset}
         onAddNewShape={addNewShape}
         onDeleteShape={deleteCurrentShape}
         onShapeColorChange={updateShapeColor}

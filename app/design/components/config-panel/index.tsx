@@ -35,6 +35,7 @@ interface ConfigPanelProps {
   onSymmetryChange: (settings: SymmetrySettings) => void
   onAnimationSpeedChange: (speed: number[]) => void
   onColorSettingsChange: (settings: ColorSettings) => void
+  onCurrentPresetChange: (preset: string) => void
   onAddNewShape: (shapeType: ShapeType) => void
   onDeleteShape: () => void
   onShapeColorChange: (index: number, color: string) => void
@@ -67,6 +68,7 @@ export function ConfigPanel({
   onSymmetryChange,
   onAnimationSpeedChange,
   onColorSettingsChange,
+  onCurrentPresetChange,
   onAddNewShape,
   onDeleteShape,
   onShapeColorChange,
@@ -99,6 +101,8 @@ export function ConfigPanel({
         points: newPath,
       }
       onShapesChange(newShapes)
+      // 当形状被修改时，清空preset选择状态
+      onCurrentPresetChange('')
     }
   }
 
@@ -106,10 +110,14 @@ export function ConfigPanel({
     const newShapes = [...shapes]
     newShapes[currentShapeIndex] = newShape
     onShapesChange(newShapes)
+    // 当形状被修改时，清空preset选择状态
+    onCurrentPresetChange('')
   }
 
   const updatePathColor = (index: number, color: string) => {
     onShapeColorChange(index, color)
+    // 当形状颜色被修改时，清空preset选择状态
+    onCurrentPresetChange('')
   }
 
   const renderTabContent = () => {
@@ -119,8 +127,16 @@ export function ConfigPanel({
           <BasicSettingsTab
             symmetrySettings={symmetrySettings}
             colorSettings={colorSettings}
-            onSymmetryChange={onSymmetryChange}
-            onColorSettingsChange={onColorSettingsChange}
+            onSymmetryChange={(settings) => {
+              onSymmetryChange(settings)
+              // 当对称设置被修改时，清空preset选择状态
+              onCurrentPresetChange('')
+            }}
+            onColorSettingsChange={(settings) => {
+              onColorSettingsChange(settings)
+              // 当颜色设置被修改时，清空preset选择状态
+              onCurrentPresetChange('')
+            }}
           />
         )
 
@@ -132,7 +148,11 @@ export function ConfigPanel({
             pupilSize={colorSettings.pupilSize}
             onPathChange={updateCurrentPath}
             onShapeChange={updateCurrentShape}
-            onShapeIndexChange={onCurrentShapeIndexChange}
+            onShapeIndexChange={(index) => {
+              onCurrentShapeIndexChange(index)
+              // 当切换形状时，清空preset选择状态
+              onCurrentPresetChange('')
+            }}
             onShapeColorChange={updatePathColor}
             onAddNewShape={onAddNewShape}
             onDeleteShape={onDeleteShape}

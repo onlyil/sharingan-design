@@ -52,7 +52,7 @@ const presets: Preset[] = [
       axes: 3,
     },
     colorSettings: {
-      pupilColor: '#e70808',
+      pupilColor: '#B20000',
       pupilSize: 0.14,
     },
   },
