@@ -97,14 +97,7 @@ export function SharinganDesigner() {
     }
 
     if (shouldUseDefaults && presets[0]) {
-      const defaultShapes = presets[0].bezierPaths.map(bezierPathToShape)
-      setShapes(defaultShapes)
-      setSymmetrySettings(presets[0].symmetrySettings)
-      setColorSettings({
-        pupilColor: presets[0].colorSettings.pupilColor,
-        pupilSize: presets[0].colorSettings.pupilSize,
-      })
-      setCurrentPreset(presets[0].name)
+      loadPreset(presets[0].id)
     }
 
     const designs = loadDesignsFromLocalStorage(SAVED_DESIGNS_KEY)
@@ -133,11 +126,11 @@ export function SharinganDesigner() {
 
   // Load preset
   const loadPreset = (presetName: string) => {
-    const preset = presets.find((p) => p.name === presetName)
+    const preset = presets.find((p) => p.id === presetName)
     if (preset) {
       // Convert preset data to new structure
-      const convertedShapes = preset.bezierPaths.map(bezierPathToShape)
-      setShapes(convertedShapes)
+      const convertedShapes = preset.bezierPaths?.map(bezierPathToShape)
+      setShapes(preset.shapes || convertedShapes || [])
       setCurrentShapeIndex(0)
       setSymmetrySettings(preset.symmetrySettings)
       setColorSettings({
@@ -150,16 +143,7 @@ export function SharinganDesigner() {
 
   // Reset to default
   const handleReset = () => {
-    const defaultPreset = presets[0]
-    const convertedShapes = defaultPreset.bezierPaths.map(bezierPathToShape)
-    setShapes(convertedShapes)
-    setCurrentShapeIndex(0)
-    setSymmetrySettings(defaultPreset.symmetrySettings)
-    setColorSettings({
-      pupilColor: defaultPreset.colorSettings.pupilColor,
-      pupilSize: defaultPreset.colorSettings.pupilSize,
-    })
-    setCurrentPreset(defaultPreset.name)
+    loadPreset(presets[0].id)
   }
 
   const handleNewCanvas = () => {

@@ -4,8 +4,8 @@ import { Plus } from 'lucide-react'
 
 interface PresetSelectorProps {
   currentPreset: string
-  presets: Array<{ name: string; image: string }>
-  onLoadPreset: (presetName: string) => void
+  presets: Array<{ id: string; image: string }>
+  onLoadPreset: (presetId: string) => void
   onNewCanvas: () => void
 }
 
@@ -20,31 +20,31 @@ export function PresetSelector({
       <div className="flex justify-center gap-3">
         {presets.map((preset) => (
           <button
-            key={preset.name}
-            onClick={() => onLoadPreset(preset.name)}
+            key={preset.id}
+            onClick={() => onLoadPreset(preset.id)}
             className={`p-1 rounded-full transition-all hover:scale-110 group ${
-              currentPreset === preset.name
+              currentPreset === preset.id
                 ? 'ring-2 ring-primary ring-offset-2 bg-primary/5'
                 : 'hover:ring-2 hover:ring-muted-foreground hover:ring-offset-1 hover:bg-muted/50'
             }`}
-            title={preset.name}>
+            title={preset.id}>
             <Avatar className="h-12 w-12 shadow-md">
               <AvatarImage
                 src={preset.image}
-                alt={preset.name}
+                alt={preset.id}
                 className="object-cover"
               />
               <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-primary/20 to-primary/10">
-                {preset.name}
+                {preset.id}
               </AvatarFallback>
             </Avatar>
             <div
               className={`text-[10px] mt-1 transition-colors ${
-                currentPreset === preset.name
+                currentPreset === preset.id
                   ? 'text-primary font-medium'
                   : 'text-muted-foreground group-hover:text-foreground'
               }`}>
-              {preset.name}
+              {preset.id}
             </div>
           </button>
         ))}

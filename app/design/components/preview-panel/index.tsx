@@ -1,10 +1,6 @@
 import { SharinganPreview } from './sharingan-preview'
 import { PresetSelector } from '../preset-selector'
-import {
-  Shape,
-  SymmetrySettings,
-  ColorSettings,
-} from '@/models/types'
+import { Shape, SymmetrySettings, ColorSettings } from '@/models/types'
 
 interface PreviewPanelProps {
   shapes: Shape[]
@@ -12,8 +8,8 @@ interface PreviewPanelProps {
   animationSpeed: number
   colorSettings: ColorSettings
   currentPreset: string
-  presets: Array<{ name: string; image: string }>
-  onLoadPreset: (presetName: string) => void
+  presets: Array<{ id: string; image: string }>
+  onLoadPreset: (presetId: string) => void
   onNewCanvas: () => void
 }
 
