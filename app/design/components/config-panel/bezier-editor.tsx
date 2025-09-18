@@ -3,7 +3,6 @@
 import type React from 'react'
 import { EDITOR_CONFIG } from '@/constants/coordinate-system'
 import { useRef, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { BezierPath, BezierPoint } from '@/models/types'
 
 interface BezierEditorProps {
@@ -11,6 +10,8 @@ interface BezierEditorProps {
   allPaths: BezierPath[]
   currentPathIndex: number
   onChange: (path: BezierPoint[]) => void
+  selectedPoint: number | null
+  onSelectedPointChange?: (point: number | null) => void
 }
 
 export function BezierEditor({
@@ -18,9 +19,10 @@ export function BezierEditor({
   allPaths,
   currentPathIndex,
   onChange,
+  selectedPoint,
+  onSelectedPointChange,
 }: BezierEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [selectedPoint, setSelectedPoint] = useState<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragType, setDragType] = useState<'point' | 'cp1' | 'cp2'>('point')
 
@@ -62,7 +64,7 @@ export function BezierEditor({
 
       // Check main point
       if (Math.abs(x - point.x) < 8 && Math.abs(y - point.y) < 8) {
-        setSelectedPoint(i)
+        onSelectedPointChange?.(i)
         setIsDragging(true)
         setDragType('point')
         return
@@ -71,7 +73,7 @@ export function BezierEditor({
       // Check control points
       if (point.cp1x !== undefined && point.cp1y !== undefined) {
         if (Math.abs(x - point.cp1x) < 6 && Math.abs(y - point.cp1y) < 6) {
-          setSelectedPoint(i)
+          onSelectedPointChange?.(i)
           setIsDragging(true)
           setDragType('cp1')
           return
@@ -80,7 +82,7 @@ export function BezierEditor({
 
       if (point.cp2x !== undefined && point.cp2y !== undefined) {
         if (Math.abs(x - point.cp2x) < 6 && Math.abs(y - point.cp2y) < 6) {
-          setSelectedPoint(i)
+          onSelectedPointChange?.(i)
           setIsDragging(true)
           setDragType('cp2')
           return
@@ -120,55 +122,6 @@ export function BezierEditor({
     setIsDragging(false)
   }
 
-  const addPoint = () => {
-    if (selectedPoint === null) return
-
-    const isStartPoint = selectedPoint === 0
-    const isEndPoint = selectedPoint === currentPath.length - 1
-
-    if (!isStartPoint && !isEndPoint) return
-
-    const newPoint: BezierPoint = {
-      x: 180 + Math.random() * 40 - 20,
-      y: 140 + Math.random() * 40 - 20,
-      cp1x: 160 + Math.random() * 40 - 20,
-      cp1y: 120 + Math.random() * 40 - 20,
-      cp2x: 200 + Math.random() * 40 - 20,
-      cp2y: 160 + Math.random() * 40 - 20,
-    }
-
-    if (isStartPoint) {
-      // Add point at start position
-      onChange([newPoint, ...currentPath])
-      setSelectedPoint(0) // Keep the newly added start point selected
-    } else {
-      // Add point at end
-      onChange([...currentPath, newPoint])
-      setSelectedPoint(currentPath.length) // Select the newly added end point
-    }
-  }
-
-  const removePoint = () => {
-    if (currentPath.length <= 2 || selectedPoint === null) return
-
-    const isStartPoint = selectedPoint === 0
-    const isEndPoint = selectedPoint === currentPath.length - 1
-
-    if (!isStartPoint && !isEndPoint) return
-
-    const newPath = currentPath.filter((_, index) => index !== selectedPoint)
-    onChange(newPath)
-    setSelectedPoint(null)
-  }
-
-  const canAddPoint =
-    selectedPoint !== null &&
-    (selectedPoint === 0 || selectedPoint === currentPath.length - 1)
-  const canRemovePoint =
-    currentPath.length > 2 &&
-    selectedPoint !== null &&
-    (selectedPoint === 0 || selectedPoint === currentPath.length - 1)
-
   return (
     <div className="space-y-3">
       <canvas
@@ -179,23 +132,6 @@ export function BezierEditor({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       />
-
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={addPoint}
-          disabled={!canAddPoint}>
-          Add Point
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={removePoint}
-          disabled={!canRemovePoint}>
-          Remove Point
-        </Button>
-      </div>
 
       <div className="text-xs text-muted-foreground">
         Click and drag path points or control points to edit curves. You can
@@ -257,11 +193,11 @@ function drawBezierPath(
 ) {
   if (path.length < 2) return
 
-  const pathColor = isGrayed ? '#d1d5db' : '#dc2626'
-  const pointColor = isGrayed ? '#d1d5db' : '#dc2626'
-  const selectedPointColor = isGrayed ? '#d1d5db' : '#f59e0b'
-  const controlLineColor = isGrayed ? '#e5e7eb' : '#9ca3af'
-  const controlPointColor = isGrayed ? '#e5e7eb' : '#fbbf24'
+  const pathColor = isGrayed ? '#404040' : '#dc2626'
+  const pointColor = isGrayed ? '#404040' : '#dc2626'
+  const selectedPointColor = isGrayed ? '#404040' : '#f59e0b'
+  const controlLineColor = isGrayed ? '#404040' : '#9ca3af'
+  const controlPointColor = isGrayed ? '#404040' : '#fbbf24'
 
   // Draw path
   ctx.strokeStyle = pathColor
