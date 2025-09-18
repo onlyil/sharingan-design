@@ -3,6 +3,11 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ColorSettings } from '@/models/types'
 
+export enum PupilColor {
+  BLACK = '#000000',
+  RED = '#B20000',
+}
+
 interface ColorSettingsTabProps {
   colorSettings: ColorSettings
   onColorSettingsChange: (settings: ColorSettings) => void
@@ -26,7 +31,7 @@ export function ColorSettingsTab({
             }
             className="flex flex-col gap-2">
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="#000000" id="pupil-black" />
+              <RadioGroupItem value={PupilColor.BLACK} id="pupil-black" />
               <label
                 htmlFor="pupil-black"
                 className="flex items-center gap-2 cursor-pointer">
@@ -38,7 +43,7 @@ export function ColorSettingsTab({
               </label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="#B20000" id="pupil-red" />
+              <RadioGroupItem value={PupilColor.RED} id="pupil-red" />
               <label
                 htmlFor="pupil-red"
                 className="flex items-center gap-2 cursor-pointer">

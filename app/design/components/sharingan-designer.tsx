@@ -28,6 +28,7 @@ import {
   deleteDesignFromLocalStorage,
   loadDesignData,
 } from './utils'
+import { PupilColor } from './config-panel/color-settings-tab'
 
 export function SharinganDesigner() {
   const [activeTab, setActiveTab] = useState('draw')
@@ -41,7 +42,7 @@ export function SharinganDesigner() {
   })
   const [animationSpeed, setAnimationSpeed] = useState([0.2])
   const [colorSettings, setColorSettings] = useState<ColorSettings>({
-    pupilColor: '#e70808',
+    pupilColor: PupilColor.RED,
     pupilSize: 0.14,
   })
   const [currentPreset, setCurrentPreset] = useState<string>('')
@@ -159,6 +160,13 @@ export function SharinganDesigner() {
       pupilSize: defaultPreset.colorSettings.pupilSize,
     })
     setCurrentPreset(defaultPreset.name)
+  }
+
+  const handleNewCanvas = () => {
+    handleReset()
+    const defaultShape = createBezierShape()
+    setShapes([defaultShape])
+    setCurrentPreset('')
   }
 
   // Add new shape (default to bezier for compatibility)
@@ -346,6 +354,7 @@ export function SharinganDesigner() {
         currentPreset={currentPreset}
         presets={presets}
         onLoadPreset={loadPreset}
+        onNewCanvas={handleNewCanvas}
       />
 
       <ConfigPanel

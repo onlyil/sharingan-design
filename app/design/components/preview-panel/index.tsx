@@ -14,6 +14,7 @@ interface PreviewPanelProps {
   currentPreset: string
   presets: Array<{ name: string; image: string }>
   onLoadPreset: (presetName: string) => void
+  onNewCanvas: () => void
 }
 
 export function PreviewPanel({
@@ -24,6 +25,7 @@ export function PreviewPanel({
   currentPreset,
   presets,
   onLoadPreset,
+  onNewCanvas,
 }: PreviewPanelProps) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
@@ -41,6 +43,7 @@ export function PreviewPanel({
           currentPreset={currentPreset}
           presets={presets}
           onLoadPreset={onLoadPreset}
+          onNewCanvas={onNewCanvas}
         />
       </div>
     </div>

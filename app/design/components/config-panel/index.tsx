@@ -57,7 +57,6 @@ export function ConfigPanel({
   symmetrySettings,
   animationSpeed,
   colorSettings,
-  currentPreset,
   savedDesigns,
   isSaveDialogOpen,
   designName,
@@ -93,7 +92,7 @@ export function ConfigPanel({
   const updateCurrentPath = (newPath: BezierPoint[]) => {
     const newShapes = [...shapes]
     const currentShape = newShapes[currentShapeIndex]
-    
+
     if (currentShape.type === ShapeType.BEZIER) {
       newShapes[currentShapeIndex] = {
         ...currentShape,
@@ -185,7 +184,9 @@ export function ConfigPanel({
     <div className="flex bg-card border-l border-border">
       <div className="w-16 bg-muted/30 border-r border-border flex flex-col">
         <div className="p-2 border-b border-border">
-          <h2 className="text-xs font-bold text-center text-primary">Settings</h2>
+          <h2 className="text-xs font-bold text-center text-primary">
+            Settings
+          </h2>
         </div>
         <div className="flex-1 py-2">
           {tabs.map((tab) => {
