@@ -47,14 +47,7 @@ export function SharinganPreview({
     const animate = () => {
       ctx.clearRect(0, 0, size, size)
 
-      drawSharinganBackground(
-        ctx,
-        centerX,
-        centerY,
-        radius,
-        colorSettings.pupilColor,
-        false
-      )
+      drawSharinganBackground(ctx, centerX, centerY, radius)
 
       shapes.forEach((shape) => {
         if (shape.type === 'bezier') {
