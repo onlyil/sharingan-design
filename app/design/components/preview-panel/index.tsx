@@ -1,5 +1,5 @@
-import { SharinganPreview } from '@/app/design/components/sharingan-preview'
-import { PresetSelector } from './preset-selector'
+import { SharinganPreview } from './sharingan-preview'
+import { PresetSelector } from '../preset-selector'
 import {
   BezierPoint,
   SymmetrySettings,
