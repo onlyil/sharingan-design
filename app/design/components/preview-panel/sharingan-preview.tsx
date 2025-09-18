@@ -134,9 +134,7 @@ function drawSharinganBackground(
   ctx: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
-  radius: number,
-  pupilColor: string,
-  drawPupil = true // Add parameter to control whether to draw pupil
+  radius: number
 ) {
   // Outer circle - red background
   ctx.beginPath()
@@ -147,11 +145,11 @@ function drawSharinganBackground(
   ctx.lineWidth = 6
   ctx.stroke()
 
-  ctx.beginPath()
-  ctx.arc(centerX, centerY, radius * 0.5, 0, Math.PI * 2)
-  ctx.strokeStyle = '#890001'
-  ctx.lineWidth = 3
-  ctx.stroke()
+  // ctx.beginPath()
+  // ctx.arc(centerX, centerY, radius * 0.5, 0, Math.PI * 2)
+  // ctx.strokeStyle = '#890001'
+  // ctx.lineWidth = 3
+  // ctx.stroke()
 }
 
 function drawPupil(
@@ -276,7 +274,7 @@ function drawSymmetricCircle(
       circleCenter.y,
       scale
     )
-    
+
     // Transform circle radius
     const scaledRadius = circleRadius * scale
 
