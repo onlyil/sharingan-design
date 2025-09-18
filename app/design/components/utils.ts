@@ -1,6 +1,11 @@
 import {
   BezierPoint,
   BezierPath,
+  Shape,
+  ShapeType,
+  BezierShape,
+  CircleShape,
+  LineShape,
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
@@ -56,6 +61,64 @@ export function createNewPath(): BezierPoint[] {
       cp2y: 180 + Math.random() * 40 - 20,
     },
   ]
+}
+
+// Generate unique ID for shapes
+export function generateId(): string {
+  return Math.random().toString(36).substr(2, 9)
+}
+
+// Create bezier shape
+export function createBezierShape(): BezierShape {
+  return {
+    type: ShapeType.BEZIER,
+    color: '#000000',
+    id: generateId(),
+    points: createNewPath(),
+  }
+}
+
+// Create circle shape
+export function createCircleShape(): CircleShape {
+  return {
+    type: ShapeType.CIRCLE,
+    color: '#000000',
+    id: generateId(),
+    center: { x: 200, y: 150 },
+    radius: 50,
+  }
+}
+
+// Create line shape
+export function createLineShape(): LineShape {
+  return {
+    type: ShapeType.LINE,
+    color: '#000000',
+    id: generateId(),
+    start: { x: 150, y: 100 },
+    end: { x: 250, y: 200 },
+  }
+}
+
+// Convert legacy BezierPath to new Shape structure
+export function bezierPathToShape(path: BezierPath): BezierShape {
+  return {
+    type: ShapeType.BEZIER,
+    color: path.color,
+    id: generateId(),
+    points: path.points,
+  }
+}
+
+// Convert Shape back to legacy BezierPath for backward compatibility
+export function shapeToBezierPath(shape: Shape): BezierPath | null {
+  if (shape.type === ShapeType.BEZIER) {
+    return {
+      points: shape.points,
+      color: shape.color,
+    }
+  }
+  return null
 }
 
 // Save design to local storage

@@ -1,14 +1,13 @@
 import { SharinganPreview } from './sharingan-preview'
 import { PresetSelector } from '../preset-selector'
 import {
-  BezierPoint,
+  Shape,
   SymmetrySettings,
   ColorSettings,
-  BezierPath,
 } from '@/models/types'
 
 interface PreviewPanelProps {
-  bezierPaths: BezierPath[]
+  shapes: Shape[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number
   colorSettings: ColorSettings
@@ -18,7 +17,7 @@ interface PreviewPanelProps {
 }
 
 export function PreviewPanel({
-  bezierPaths,
+  shapes,
   symmetrySettings,
   animationSpeed,
   colorSettings,
@@ -31,7 +30,7 @@ export function PreviewPanel({
       <div className="flex flex-col items-center space-y-6">
         <div className="relative">
           <SharinganPreview
-            bezierPaths={bezierPaths}
+            shapes={shapes}
             symmetrySettings={symmetrySettings}
             animationSpeed={animationSpeed}
             colorSettings={colorSettings}

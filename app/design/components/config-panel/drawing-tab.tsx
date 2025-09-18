@@ -8,46 +8,64 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Plus } from 'lucide-react'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { BezierEditor } from './bezier-editor'
-import { BezierPoint, BezierPath } from '@/models/types'
+import { BezierEditor } from './editors/bezier-editor'
+import { CircleShapeEditor } from './editors/circle-shape-editor'
+import { LineShapeEditor } from './editors/line-shape-editor'
+import { Shape, ShapeType, BezierPoint } from '@/models/types'
 import { useState } from 'react'
 
 interface DrawingTabProps {
-  bezierPaths: BezierPath[]
-  currentPathIndex: number
+  shapes: Shape[]
+  currentShapeIndex: number
   pupilSize: number
   onPathChange: (newPath: BezierPoint[]) => void
-  onPathIndexChange: (index: number) => void
-  onPathColorChange: (index: number, color: string) => void
-  onAddNewPath: () => void
-  onDeletePath: () => void
+  onShapeChange: (shape: Shape) => void
+  onShapeIndexChange: (index: number) => void
+  onShapeColorChange: (index: number, color: string) => void
+  onAddNewShape: (shapeType: ShapeType) => void
+  onDeleteShape: () => void
 }
 
 export function DrawingTab({
-  bezierPaths,
-  currentPathIndex,
+  shapes,
+  currentShapeIndex,
   pupilSize,
   onPathChange,
-  onPathIndexChange,
-  onPathColorChange,
-  onAddNewPath,
-  onDeletePath,
+  onShapeChange,
+  onShapeIndexChange,
+  onShapeColorChange,
+  onAddNewShape,
+  onDeleteShape,
 }: DrawingTabProps) {
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null)
+  const [selectedShapeType, setSelectedShapeType] = useState<ShapeType>(
+    ShapeType.BEZIER
+  )
+  const [selectedElement, setSelectedElement] = useState<string | null>(null)
 
-  const currentPath = bezierPaths[currentPathIndex]?.points || []
+  const currentShape = shapes[currentShapeIndex]
+  const currentPath =
+    currentShape?.type === ShapeType.BEZIER ? currentShape.points : []
 
   const canAddPoint =
+    currentShape?.type === ShapeType.BEZIER &&
     selectedPoint !== null &&
     (selectedPoint === 0 || selectedPoint === currentPath.length - 1)
   const canRemovePoint =
+    currentShape?.type === ShapeType.BEZIER &&
     currentPath.length > 2 &&
     selectedPoint !== null &&
     (selectedPoint === 0 || selectedPoint === currentPath.length - 1)
 
+  const handleAddShape = () => {
+    onAddNewShape(selectedShapeType)
+  }
+
   const handleAddPoint = () => {
-    if (selectedPoint === null) return
+    if (selectedPoint === null || currentShape?.type !== ShapeType.BEZIER)
+      return
 
     const isStartPoint = selectedPoint === 0
     const isEndPoint = selectedPoint === currentPath.length - 1
@@ -75,7 +93,12 @@ export function DrawingTab({
   }
 
   const handleRemovePoint = () => {
-    if (currentPath.length <= 2 || selectedPoint === null) return
+    if (
+      currentPath.length <= 2 ||
+      selectedPoint === null ||
+      currentShape?.type !== ShapeType.BEZIER
+    )
+      return
 
     const isStartPoint = selectedPoint === 0
     const isEndPoint = selectedPoint === currentPath.length - 1
@@ -91,14 +114,40 @@ export function DrawingTab({
     <div className="space-y-4">
       <Card className="p-4">
         <Label className="text-sm font-medium">Shape Editor</Label>
-        <BezierEditor
-          pupilSize={pupilSize}
-          allPaths={bezierPaths}
-          currentPathIndex={currentPathIndex}
-          onChange={onPathChange}
-          selectedPoint={selectedPoint}
-          onSelectedPointChange={setSelectedPoint}
-        />
+        {/* Shape Editor based on current shape type */}
+        {currentShape?.type === ShapeType.BEZIER && (
+          <BezierEditor
+            pupilSize={pupilSize}
+            shapes={shapes}
+            currentShapeIndex={currentShapeIndex}
+            onChange={onPathChange}
+            selectedPoint={selectedPoint}
+            onSelectedPointChange={(point) => {
+              setSelectedPoint(point)
+              setSelectedElement(point?.toString() || null)
+            }}
+          />
+        )}
+        {currentShape?.type === ShapeType.CIRCLE && (
+          <CircleShapeEditor
+            pupilSize={pupilSize}
+            shapes={shapes}
+            currentShapeIndex={currentShapeIndex}
+            onShapeChange={onShapeChange}
+            selectedElement={selectedElement}
+            onSelectedElementChange={setSelectedElement}
+          />
+        )}
+        {currentShape?.type === ShapeType.LINE && (
+          <LineShapeEditor
+            pupilSize={pupilSize}
+            shapes={shapes}
+            currentShapeIndex={currentShapeIndex}
+            onShapeChange={onShapeChange}
+            selectedElement={selectedElement}
+            onSelectedElementChange={setSelectedElement}
+          />
+        )}
       </Card>
 
       <Card className="p-4">
@@ -106,17 +155,18 @@ export function DrawingTab({
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <Select
-              value={currentPathIndex.toString()}
+              value={currentShapeIndex.toString()}
               onValueChange={(value) =>
-                onPathIndexChange(Number.parseInt(value))
+                onShapeIndexChange(Number.parseInt(value))
               }>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {bezierPaths.map((_, index) => (
+                {shapes.map((shape, index) => (
                   <SelectItem key={index} value={index.toString()}>
-                    Shape {index + 1}
+                    {shape.type.charAt(0).toUpperCase() + shape.type.slice(1)}{' '}
+                    {index + 1}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -124,8 +174,8 @@ export function DrawingTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={onDeletePath}
-              disabled={bezierPaths.length <= 1}
+              onClick={onDeleteShape}
+              disabled={shapes.length <= 1}
               className="text-destructive hover:text-destructive bg-transparent">
               Delete
             </Button>
@@ -136,9 +186,9 @@ export function DrawingTab({
               Shape Fill Color
             </Label>
             <RadioGroup
-              value={bezierPaths[currentPathIndex]?.color || '#000000'}
+              value={shapes[currentShapeIndex]?.color || '#000000'}
               onValueChange={(value) =>
-                onPathColorChange(currentPathIndex, value)
+                onShapeColorChange(currentShapeIndex, value)
               }
               className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
@@ -164,43 +214,59 @@ export function DrawingTab({
             </RadioGroup>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">
-              Point Operations
-            </Label>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleAddPoint}
-                disabled={!canAddPoint}
-                className="flex-1 bg-transparent">
-                Add Point
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleRemovePoint}
-                disabled={!canRemovePoint}
-                className="flex-1 bg-transparent">
-                Remove Point
-              </Button>
+          {/* Point Operations - only show for bezier shapes */}
+          {currentShape?.type === ShapeType.BEZIER && (
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">
+                Point Operations
+              </Label>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddPoint}
+                  disabled={!canAddPoint}
+                  className="flex-1 bg-transparent">
+                  Add Point
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRemovePoint}
+                  disabled={!canRemovePoint}
+                  className="flex-1 bg-transparent">
+                  Remove Point
+                </Button>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Select start or end points to add/remove points
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">
-              Select start or end points to add/remove points
-            </div>
-          </div>
+          )}
         </div>
       </Card>
 
       <Card className="p-4">
         <Label className="text-sm font-medium">Add New Shape</Label>
-        <div>
+        <div className="space-y-2">
+          <Select
+            value={selectedShapeType}
+            onValueChange={(value: ShapeType) => setSelectedShapeType(value)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select shape type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ShapeType.BEZIER}>Bezier Curve</SelectItem>
+              <SelectItem value={ShapeType.CIRCLE}>Circle</SelectItem>
+              <SelectItem value={ShapeType.LINE}>Line</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             size="sm"
             variant="outline"
-            onClick={onAddNewPath}
+            onClick={handleAddShape}
             className="w-full bg-transparent">
+            <Plus className="w-4 h-4 mr-2" />
             Add Shape
           </Button>
         </div>

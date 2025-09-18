@@ -7,6 +7,8 @@ import presets from '@/constants/presets'
 import {
   BezierPoint,
   BezierPath,
+  Shape,
+  ShapeType,
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
@@ -16,7 +18,11 @@ import { ConfigPanel } from './config-panel'
 import {
   generateDefaultDesignName,
   copyConfigToClipboard,
-  createNewPath,
+  createBezierShape,
+  createCircleShape,
+  createLineShape,
+  bezierPathToShape,
+  shapeToBezierPath,
   saveDesignToLocalStorage,
   loadDesignsFromLocalStorage,
   deleteDesignFromLocalStorage,
@@ -28,8 +34,8 @@ export function SharinganDesigner() {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false)
   const [designName, setDesignName] = useState('')
 
-  const [bezierPaths, setBezierPaths] = useState<BezierPath[]>([])
-  const [currentPathIndex, setCurrentPathIndex] = useState(0)
+  const [shapes, setShapes] = useState<Shape[]>([])
+  const [currentShapeIndex, setCurrentShapeIndex] = useState(0)
   const [symmetrySettings, setSymmetrySettings] = useState<SymmetrySettings>({
     axes: 3,
   })
@@ -56,8 +62,14 @@ export function SharinganDesigner() {
       try {
         const parsed = JSON.parse(savedData)
 
-        if (parsed.bezierPaths && Array.isArray(parsed.bezierPaths)) {
-          setBezierPaths(parsed.bezierPaths)
+        if (parsed.shapes && Array.isArray(parsed.shapes)) {
+          // New format - use shapes directly
+          setShapes(parsed.shapes)
+          shouldUseDefaults = false
+        } else if (parsed.bezierPaths && Array.isArray(parsed.bezierPaths)) {
+          // Legacy format - convert bezierPaths to shapes
+          const convertedShapes = parsed.bezierPaths.map(bezierPathToShape)
+          setShapes(convertedShapes)
           shouldUseDefaults = false
         }
 
@@ -84,7 +96,8 @@ export function SharinganDesigner() {
     }
 
     if (shouldUseDefaults && presets[0]) {
-      setBezierPaths(presets[0].bezierPaths)
+      const defaultShapes = presets[0].bezierPaths.map(bezierPathToShape)
+      setShapes(defaultShapes)
       setSymmetrySettings(presets[0].symmetrySettings)
       setColorSettings({
         pupilColor: presets[0].colorSettings.pupilColor,
@@ -101,7 +114,7 @@ export function SharinganDesigner() {
   // Save current state to local storage
   useEffect(() => {
     const dataToSave = {
-      bezierPaths,
+      shapes,
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -110,7 +123,7 @@ export function SharinganDesigner() {
     isDataInitialized &&
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
   }, [
-    bezierPaths,
+    shapes,
     symmetrySettings,
     animationSpeed,
     colorSettings,
@@ -122,12 +135,9 @@ export function SharinganDesigner() {
     const preset = presets.find((p) => p.name === presetName)
     if (preset) {
       // Convert preset data to new structure
-      const convertedPaths = preset.bezierPaths.map((path: BezierPath) => ({
-        points: path.points,
-        color: path.color || '#000000',
-      }))
-      setBezierPaths(convertedPaths)
-      setCurrentPathIndex(0)
+      const convertedShapes = preset.bezierPaths.map(bezierPathToShape)
+      setShapes(convertedShapes)
+      setCurrentShapeIndex(0)
       setSymmetrySettings(preset.symmetrySettings)
       setColorSettings({
         pupilColor: preset.colorSettings.pupilColor,
@@ -140,14 +150,9 @@ export function SharinganDesigner() {
   // Reset to default
   const handleReset = () => {
     const defaultPreset = presets[0]
-    const convertedPaths = defaultPreset.bezierPaths.map(
-      (path: BezierPath) => ({
-        points: path.points,
-        color: path.color || '#000000',
-      })
-    )
-    setBezierPaths(convertedPaths)
-    setCurrentPathIndex(0)
+    const convertedShapes = defaultPreset.bezierPaths.map(bezierPathToShape)
+    setShapes(convertedShapes)
+    setCurrentShapeIndex(0)
     setSymmetrySettings(defaultPreset.symmetrySettings)
     setColorSettings({
       pupilColor: defaultPreset.colorSettings.pupilColor,
@@ -156,53 +161,71 @@ export function SharinganDesigner() {
     setCurrentPreset(defaultPreset.name)
   }
 
-  // Add new path
-  const addNewPath = () => {
-    const newPathPoints = createNewPath()
-    const newPath: BezierPath = {
-      points: newPathPoints,
-      color: '#000000', // New path defaults to black
-    }
-    const newPaths = [...bezierPaths, newPath]
-    setBezierPaths(newPaths)
-    setCurrentPathIndex(newPaths.length - 1)
+  // Add new shape (default to bezier for compatibility)
+  const addNewShape = (shapeType: ShapeType = ShapeType.BEZIER) => {
+    let newShape: Shape
 
-    toast.success(`Added path ${newPaths.length}`, {
-      description: 'Path added',
+    switch (shapeType) {
+      case ShapeType.CIRCLE:
+        newShape = createCircleShape()
+        break
+      case ShapeType.LINE:
+        newShape = createLineShape()
+        break
+      default:
+        newShape = createBezierShape()
+    }
+
+    const newShapes = [...shapes, newShape]
+    setShapes(newShapes)
+    setCurrentShapeIndex(newShapes.length - 1)
+
+    const shapeName = shapeType.charAt(0).toUpperCase() + shapeType.slice(1)
+    toast.success(`Added ${shapeName} ${newShapes.length}`, {
+      description: 'Shape added',
     })
   }
 
-  // Delete current path
-  const deleteCurrentPath = () => {
-    if (bezierPaths.length <= 1) {
-      toast.error('At least one path must be kept', {
+  // Delete current shape
+  const deleteCurrentShape = () => {
+    if (shapes.length <= 1) {
+      toast.error('At least one shape must be kept', {
         description: 'Cannot delete',
       })
       return
     }
 
-    const newPaths = bezierPaths.filter(
-      (_, index) => index !== currentPathIndex
-    )
-    setBezierPaths(newPaths)
+    const newShapes = shapes.filter((_, index) => index !== currentShapeIndex)
+    setShapes(newShapes)
 
-    if (currentPathIndex >= newPaths.length) {
-      setCurrentPathIndex(newPaths.length - 1)
+    if (currentShapeIndex >= newShapes.length) {
+      setCurrentShapeIndex(newShapes.length - 1)
     }
 
-    toast.success(`Deleted path ${currentPathIndex + 1}`, {
-      description: 'Path deleted',
+    toast.success(`Deleted shape ${currentShapeIndex + 1}`, {
+      description: 'Shape deleted',
     })
   }
 
-  // Update current path
-  const updateCurrentPath = (newPath: BezierPoint[]) => {
-    const newPaths = [...bezierPaths]
-    newPaths[currentPathIndex] = {
-      ...newPaths[currentPathIndex],
-      points: newPath,
+  // Update current shape (for bezier compatibility)
+  const updateCurrentShape = (newPath: BezierPoint[]) => {
+    const newShapes = [...shapes]
+    const currentShape = newShapes[currentShapeIndex]
+
+    if (currentShape.type === ShapeType.BEZIER) {
+      newShapes[currentShapeIndex] = {
+        ...currentShape,
+        points: newPath,
+      }
+      setShapes(newShapes)
     }
-    setBezierPaths(newPaths)
+  }
+
+  // Update shape color
+  const updateShapeColor = (index: number, color: string) => {
+    const newShapes = [...shapes]
+    newShapes[index] = { ...newShapes[index], color }
+    setShapes(newShapes)
   }
 
   // Save design
@@ -214,8 +237,14 @@ export function SharinganDesigner() {
       return
     }
 
+    // Convert shapes to legacy bezierPaths for backward compatibility
+    const legacyBezierPaths = shapes
+      .map(shapeToBezierPath)
+      .filter((path): path is BezierPath => path !== null)
+
     const currentConfig = {
-      bezierPaths,
+      bezierPaths: legacyBezierPaths,
+      shapes, // Include new format for future use
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -253,8 +282,18 @@ export function SharinganDesigner() {
   // Load design from history
   const loadDesignFromHistory = (design: SavedDesign) => {
     const loadedData = loadDesignData(design)
-    setBezierPaths(loadedData.bezierPaths)
-    setCurrentPathIndex(0)
+
+    // Try to load new format first, fall back to legacy format
+    let loadedShapes: Shape[]
+    if (design.shapes && Array.isArray(design.shapes)) {
+      loadedShapes = design.shapes
+    } else {
+      // Convert legacy bezierPaths to shapes
+      loadedShapes = loadedData.bezierPaths.map(bezierPathToShape)
+    }
+
+    setShapes(loadedShapes)
+    setCurrentShapeIndex(0)
     setSymmetrySettings(loadedData.symmetrySettings)
     setColorSettings(loadedData.colorSettings)
     setIsHistoryOpen(false)
@@ -271,8 +310,14 @@ export function SharinganDesigner() {
 
   // Copy current configuration
   const copyCurrentConfig = async () => {
+    // Convert shapes to legacy bezierPaths for backward compatibility
+    const legacyBezierPaths = shapes
+      .map(shapeToBezierPath)
+      .filter((path): path is BezierPath => path !== null)
+
     const currentConfig = {
-      bezierPaths,
+      bezierPaths: legacyBezierPaths,
+      shapes, // Include new format for future use
       symmetrySettings,
       animationSpeed,
       colorSettings,
@@ -294,7 +339,7 @@ export function SharinganDesigner() {
   return (
     <div className="flex h-screen bg-background">
       <PreviewPanel
-        bezierPaths={bezierPaths}
+        shapes={shapes}
         symmetrySettings={symmetrySettings}
         animationSpeed={animationSpeed[0]}
         colorSettings={colorSettings}
@@ -305,8 +350,8 @@ export function SharinganDesigner() {
 
       <ConfigPanel
         activeTab={activeTab}
-        bezierPaths={bezierPaths}
-        currentPathIndex={currentPathIndex}
+        shapes={shapes}
+        currentShapeIndex={currentShapeIndex}
         symmetrySettings={symmetrySettings}
         animationSpeed={animationSpeed}
         colorSettings={colorSettings}
@@ -316,13 +361,14 @@ export function SharinganDesigner() {
         designName={designName}
         isHistoryOpen={isHistoryOpen}
         onTabChange={setActiveTab}
-        onBezierPathsChange={setBezierPaths}
-        onCurrentPathIndexChange={setCurrentPathIndex}
+        onShapesChange={setShapes}
+        onCurrentShapeIndexChange={setCurrentShapeIndex}
         onSymmetryChange={setSymmetrySettings}
         onAnimationSpeedChange={setAnimationSpeed}
         onColorSettingsChange={setColorSettings}
-        onAddNewPath={addNewPath}
-        onDeletePath={deleteCurrentPath}
+        onAddNewShape={addNewShape}
+        onDeleteShape={deleteCurrentShape}
+        onShapeColorChange={updateShapeColor}
         onOpenSaveDialog={handleOpenSaveDialog}
         onCloseSaveDialog={() => setIsSaveDialogOpen(false)}
         onCloseHistoryDialog={() => setIsHistoryOpen(false)}

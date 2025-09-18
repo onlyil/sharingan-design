@@ -6,8 +6,9 @@ import { ColorSettingsTab } from './color-settings-tab'
 import { AnimationTab } from './animation-tab'
 import { DataTab } from './data-tab'
 import {
+  Shape,
+  ShapeType,
   BezierPoint,
-  BezierPath,
   SymmetrySettings,
   ColorSettings,
   SavedDesign,
@@ -16,8 +17,8 @@ import {
 interface ConfigPanelProps {
   // Core state
   activeTab: string
-  bezierPaths: BezierPath[]
-  currentPathIndex: number
+  shapes: Shape[]
+  currentShapeIndex: number
   symmetrySettings: SymmetrySettings
   animationSpeed: number[]
   colorSettings: ColorSettings
@@ -29,13 +30,14 @@ interface ConfigPanelProps {
 
   // Callback functions
   onTabChange: (tabId: string) => void
-  onBezierPathsChange: (paths: BezierPath[]) => void
-  onCurrentPathIndexChange: (index: number) => void
+  onShapesChange: (shapes: Shape[]) => void
+  onCurrentShapeIndexChange: (index: number) => void
   onSymmetryChange: (settings: SymmetrySettings) => void
   onAnimationSpeedChange: (speed: number[]) => void
   onColorSettingsChange: (settings: ColorSettings) => void
-  onAddNewPath: () => void
-  onDeletePath: () => void
+  onAddNewShape: (shapeType: ShapeType) => void
+  onDeleteShape: () => void
+  onShapeColorChange: (index: number, color: string) => void
   onOpenSaveDialog: () => void
   onCloseSaveDialog: () => void
   onCloseHistoryDialog: () => void
@@ -50,8 +52,8 @@ interface ConfigPanelProps {
 
 export function ConfigPanel({
   activeTab,
-  bezierPaths,
-  currentPathIndex,
+  shapes,
+  currentShapeIndex,
   symmetrySettings,
   animationSpeed,
   colorSettings,
@@ -61,13 +63,14 @@ export function ConfigPanel({
   designName,
   isHistoryOpen,
   onTabChange,
-  onBezierPathsChange,
-  onCurrentPathIndexChange,
+  onShapesChange,
+  onCurrentShapeIndexChange,
   onSymmetryChange,
   onAnimationSpeedChange,
   onColorSettingsChange,
-  onAddNewPath,
-  onDeletePath,
+  onAddNewShape,
+  onDeleteShape,
+  onShapeColorChange,
   onOpenSaveDialog,
   onCloseSaveDialog,
   onCloseHistoryDialog,
@@ -88,18 +91,26 @@ export function ConfigPanel({
   ]
 
   const updateCurrentPath = (newPath: BezierPoint[]) => {
-    const newPaths = [...bezierPaths]
-    newPaths[currentPathIndex] = {
-      ...newPaths[currentPathIndex],
-      points: newPath,
+    const newShapes = [...shapes]
+    const currentShape = newShapes[currentShapeIndex]
+    
+    if (currentShape.type === ShapeType.BEZIER) {
+      newShapes[currentShapeIndex] = {
+        ...currentShape,
+        points: newPath,
+      }
+      onShapesChange(newShapes)
     }
-    onBezierPathsChange(newPaths)
+  }
+
+  const updateCurrentShape = (newShape: Shape) => {
+    const newShapes = [...shapes]
+    newShapes[currentShapeIndex] = newShape
+    onShapesChange(newShapes)
   }
 
   const updatePathColor = (index: number, color: string) => {
-    const newPaths = [...bezierPaths]
-    newPaths[index] = { ...newPaths[index], color }
-    onBezierPathsChange(newPaths)
+    onShapeColorChange(index, color)
   }
 
   const renderTabContent = () => {
@@ -117,14 +128,15 @@ export function ConfigPanel({
       case 'draw':
         return (
           <DrawingTab
-            bezierPaths={bezierPaths}
-            currentPathIndex={currentPathIndex}
+            shapes={shapes}
+            currentShapeIndex={currentShapeIndex}
             pupilSize={colorSettings.pupilSize}
             onPathChange={updateCurrentPath}
-            onPathIndexChange={onCurrentPathIndexChange}
-            onPathColorChange={updatePathColor}
-            onAddNewPath={onAddNewPath}
-            onDeletePath={onDeletePath}
+            onShapeChange={updateCurrentShape}
+            onShapeIndexChange={onCurrentShapeIndexChange}
+            onShapeColorChange={updatePathColor}
+            onAddNewShape={onAddNewShape}
+            onDeleteShape={onDeleteShape}
           />
         )
 

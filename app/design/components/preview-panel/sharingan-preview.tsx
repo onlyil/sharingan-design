@@ -2,10 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 import type {
-  BezierPoint,
-  BezierPath,
+  Shape,
   SymmetrySettings,
   ColorSettings,
+  BezierPoint,
 } from '@/models/types'
 import {
   PREVIEW_CONFIG,
@@ -13,14 +13,14 @@ import {
 } from '@/constants/coordinate-system'
 
 interface SharinganPreviewProps {
-  bezierPaths: BezierPath[]
+  shapes: Shape[]
   symmetrySettings: SymmetrySettings
   animationSpeed: number
   colorSettings: ColorSettings
 }
 
 export function SharinganPreview({
-  bezierPaths,
+  shapes,
   symmetrySettings,
   animationSpeed,
   colorSettings,
@@ -56,17 +56,43 @@ export function SharinganPreview({
         false
       )
 
-      bezierPaths.forEach((bezierPath) => {
-        drawSymmetricPaths(
-          ctx,
-          centerX,
-          centerY,
-          radius,
-          bezierPath.points,
-          symmetrySettings,
-          rotationRef.current,
-          bezierPath.color
-        )
+      shapes.forEach((shape) => {
+        if (shape.type === 'bezier') {
+          drawSymmetricPaths(
+            ctx,
+            centerX,
+            centerY,
+            radius,
+            shape.points,
+            symmetrySettings,
+            rotationRef.current,
+            shape.color
+          )
+        } else if (shape.type === 'circle') {
+          drawSymmetricCircle(
+            ctx,
+            centerX,
+            centerY,
+            radius,
+            shape.center,
+            shape.radius,
+            symmetrySettings,
+            rotationRef.current,
+            shape.color
+          )
+        } else if (shape.type === 'line') {
+          drawSymmetricLine(
+            ctx,
+            centerX,
+            centerY,
+            radius,
+            shape.start,
+            shape.end,
+            symmetrySettings,
+            rotationRef.current,
+            shape.color
+          )
+        }
       })
 
       drawPupil(
@@ -91,7 +117,7 @@ export function SharinganPreview({
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [bezierPaths, symmetrySettings, animationSpeed, colorSettings])
+  }, [shapes, symmetrySettings, animationSpeed, colorSettings])
 
   return (
     <div className="relative">
@@ -214,6 +240,98 @@ function drawSymmetricPaths(
 
     ctx.closePath()
     ctx.fill()
+    ctx.restore()
+  }
+
+  ctx.restore()
+}
+
+function drawSymmetricCircle(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  radius: number,
+  circleCenter: { x: number; y: number },
+  circleRadius: number,
+  symmetrySettings: SymmetrySettings,
+  rotation: number,
+  fillColor: string
+) {
+  ctx.save()
+  ctx.translate(centerX, centerY)
+  ctx.rotate(rotation)
+
+  ctx.fillStyle = fillColor
+
+  const scale = COORDINATE_TRANSFORM.getScale(radius)
+
+  for (let i = 0; i < symmetrySettings.axes; i++) {
+    ctx.save()
+
+    ctx.rotate((i * Math.PI * 2) / symmetrySettings.axes)
+
+    // Transform circle center from editor coordinates
+    const [centerX, centerY] = COORDINATE_TRANSFORM.editorToPreview(
+      circleCenter.x,
+      circleCenter.y,
+      scale
+    )
+    
+    // Transform circle radius
+    const scaledRadius = circleRadius * scale
+
+    // Draw circle
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, scaledRadius, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+  }
+
+  ctx.restore()
+}
+
+function drawSymmetricLine(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  radius: number,
+  startPoint: { x: number; y: number },
+  endPoint: { x: number; y: number },
+  symmetrySettings: SymmetrySettings,
+  rotation: number,
+  lineColor: string
+) {
+  ctx.save()
+  ctx.translate(centerX, centerY)
+  ctx.rotate(rotation)
+
+  ctx.strokeStyle = lineColor
+  ctx.lineWidth = 3
+
+  const scale = COORDINATE_TRANSFORM.getScale(radius)
+
+  for (let i = 0; i < symmetrySettings.axes; i++) {
+    ctx.save()
+
+    ctx.rotate((i * Math.PI * 2) / symmetrySettings.axes)
+
+    // Transform line points from editor coordinates
+    const [startX, startY] = COORDINATE_TRANSFORM.editorToPreview(
+      startPoint.x,
+      startPoint.y,
+      scale
+    )
+    const [endX, endY] = COORDINATE_TRANSFORM.editorToPreview(
+      endPoint.x,
+      endPoint.y,
+      scale
+    )
+
+    // Draw line
+    ctx.beginPath()
+    ctx.moveTo(startX, startY)
+    ctx.lineTo(endX, endY)
+    ctx.stroke()
     ctx.restore()
   }
 
